@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express'
 import parse from 'date-fns/parse'
 import { Database } from '../db-utils'
-import { WorkoutsController } from '../controllers'
+import { WorkoutController } from '../controllers'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
-  const controller = new WorkoutsController(db)
+  const controller = new WorkoutController(db)
 
   router.get('/', (req: Request, res: Response) => {
     throw new Error('All workouts not implemented')

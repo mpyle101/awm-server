@@ -1,7 +1,7 @@
 import { addMonths, startOfMonth } from 'date-fns'
 import { Database, load_sql, where } from '../db-utils'
 
-export class WorkoutsController {
+export class WorkoutController {
   sql_select_sets = load_sql('select_sets_raw.sql')
 
   constructor(private db: Database) {}

@@ -1,1 +1,2 @@
-export { WorkoutsController } from './workouts'
+export { ExerciseController } from './exercise'
+export { WorkoutController } from './workout'
