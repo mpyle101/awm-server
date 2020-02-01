@@ -1,0 +1,1 @@
+export { WorkoutsController } from './workouts'

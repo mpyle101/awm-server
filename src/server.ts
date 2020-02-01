@@ -11,6 +11,8 @@ import { fold } from 'fp-ts/lib/Either'
 import { connect } from './db-utils'
 import { tryCatch } from './utils'
 
+import { create_workouts_router } from './routes'
+
 const app = express()
 const server = http.createServer(app)
 
@@ -53,8 +55,7 @@ const url  = process.env.AWM_DB || 'postgres://jester@localhost/awm';
         })
 
         // Set our api routes
-        // const router = require('./routes')(db)
-        // app.use('/api', router)
+        app.use('/api/workouts', create_workouts_router(db))
 
         // Catch all other routes and return the index file
         app.get('*', (req, res) => {
