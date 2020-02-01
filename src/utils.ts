@@ -7,3 +7,10 @@ export const tryCatch = async <E, A>(fn: () => Promise<A>): Promise<Either<E, A>
     return Promise.resolve(left<E, A>(e))
   }
 }
+
+export const is_simple = value =>
+  typeof value === 'number' ||
+  typeof value === 'string' ||
+  typeof value === 'boolean' ||
+  value instanceof Date ||
+  value === null

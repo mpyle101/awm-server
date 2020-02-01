@@ -1,9 +1,8 @@
 import { join } from 'path'
-
-import { TaskEither, tryCatch } from 'fp-ts/lib/TaskEither'
-
 import { ITask } from 'pg-promise'
 import pg_promise = require('pg-promise')
+
+import { is_simple } from './utils'
 
 const pgp = pg_promise({ capSQL: true })
 const create_db = (url: string) => pgp(url)
@@ -28,5 +27,17 @@ export const load_sql = (fname: string) => {
   return new pgp.QueryFile(path, { minify: true })
 }
 
-export const format = (clause: string, values: any) =>
-  pgp.as.format(clause, values)
+export const where = (values: object, and=true) => {
+  const conditions = Object.entries(values).reduce((acc, [key, prop]) => {
+    if (is_simple(prop)) {
+      acc.push(pgp.as.format('$(key:raw) = $(prop)', { key, prop }))
+    } else {
+      Object.entries(prop).forEach(([op, value]) =>
+        acc.push(pgp.as.format(`$(key:raw) ${op} $(value)`, { key, value }))
+      )
+    }
+    return acc
+  }, [] as string[])
+
+  return 'WHERE ' + conditions.join(and ? ' AND ' : ' OR ')
+}

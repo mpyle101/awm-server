@@ -1,6 +1,5 @@
 SELECT
   awm.workout.id,
-  awm.workout.created,
   awm.workout.workout_date AS date,
   awm.workout.seqno AS wrk_no,
   awm.block.seqno AS blk_no,
@@ -29,7 +28,8 @@ SELECT
   END AS blk_exercise,
   CASE awm.block.block_type
     WHEN 'HIC' THEN awm.hic_block.distance
-  END AS blk_distance
+  END AS blk_distance,
+  awm.workout.created
 FROM
   awm.workout
 INNER JOIN
