@@ -2,11 +2,9 @@ import { join } from 'path'
 import { ITask } from 'pg-promise'
 import pg_promise = require('pg-promise')
 
-import { is_simple } from './utils'
-
 const pgp = pg_promise({ capSQL: true })
-const create_db = (url: string) => pgp(url)
 
+const create_db = (url: string) => pgp(url)
 export type Database = ReturnType<typeof create_db> | ITask<{}>
 
 export const connect = async (url: string) => {
@@ -41,3 +39,10 @@ export const where = (values: object, and=true) => {
 
   return 'WHERE ' + conditions.join(and ? ' AND ' : ' OR ')
 }
+
+const is_simple = value =>
+  typeof value === 'number' ||
+  typeof value === 'string' ||
+  typeof value === 'boolean' ||
+  value instanceof Date ||
+  value === null

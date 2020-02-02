@@ -1,42 +1,68 @@
-import express, { Request, Response } from 'express'
+import express, { Request, Response, NextFunction as NF } from 'express'
 import parse from 'date-fns/parse'
+import { pipe } from 'fp-ts/lib/pipeable'
+
 import { Database } from '../db-utils'
+import { foldMap, tryCatchError } from '../fp-utils'
 import { WorkoutController } from '../controllers'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
   const controller = new WorkoutController(db)
 
-  router.get('/', (req: Request, res: Response) => {
-    throw new Error('All workouts not implemented')
-  })
+  const get_date = params => {
+    const year  = parseInt(params.year, 10)
+    const month = parseInt(params.month, 10)
+    const day   = params.day ? parseInt(params.day, 10) : 1
+    return new Date(year, month - 1, day)
+  }
 
-  router.get('/:id', async (req: Request, res: Response) => {
-    const workout_id = parseInt(req.params.id, 10)
-    const sets = await controller.get_by_id(workout_id)
-    if (sets.length === 0) {
-      res.status(404).send('Not found')
-    } else {
-      res.json(sets)
-    }
-  })
+  router.get('/', (req: Request, res: Response, next: NF) =>
+    (pipe(
+      controller.get_all,
+      result => tryCatchError(result),
+      foldMap(
+        error  => next({ error, message: 'Internal error' }),
+        result => res.json(result)
+      )
+    ))()
+  )
 
-  router.get('/:year/:month', async (req: Request, res: Response) => {
-    const year  = parseInt(req.params.year, 10)
-    const month = parseInt(req.params.month, 10)
-    const date  = new Date(year, month - 1, 1)
-    const sets  = await controller.get_by_month(date)
-    res.json(sets)
-  })
+  router.get('/:id', (req: Request, res: Response, next: NF) =>
+    (pipe(
+      parseInt(req.params.id, 10),
+      controller.get_by_id,
+      result => tryCatchError(result),
+      foldMap(
+        error  => next({ error, message: 'Internal error' }),
+        result => result.length ? res.json(result) : next({ status: 404 })
+      )
+    ))()
+  )
 
-  router.get('/:year/:month/:day', async (req: Request, res: Response) => {
-    const year  = parseInt(req.params.year, 10)
-    const month = parseInt(req.params.month, 10)
-    const day   = parseInt(req.params.day, 10)
-    const date = new Date(year, month - 1, day)
-    const sets = await controller.get_by_date(date)
-    res.json(sets)
-  })
+  router.get('/:year/:month', (req: Request, res: Response, next: NF) =>
+    (pipe(
+      get_date(req.params),
+      controller.get_by_month,
+      result => tryCatchError(result),
+      foldMap(
+        error  => next({ error, message: 'Internal error' }),
+        result => res.json(result)
+      )
+    ))()
+  )
+
+  router.get('/:year/:month/:day', (req: Request, res: Response, next: NF) =>
+    (pipe(
+      get_date(req.params),
+      controller.get_by_date,
+      result => tryCatchError(result),
+      foldMap(
+        error  => next({ error, message: 'Internal error' }),
+        result => res.json(result)
+      )
+    ))()
+  )
 
   return router
 }

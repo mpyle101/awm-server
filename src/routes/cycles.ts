@@ -3,12 +3,11 @@ import { pipe } from 'fp-ts/lib/pipeable'
 
 import { Database } from '../db-utils'
 import { foldMap, tryCatchError } from '../fp-utils'
-
-import { ExerciseController } from '../controllers'
+import { CycleController } from '../controllers'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
-  const controller = new ExerciseController(db)
+  const controller = new CycleController(db)
 
   router.get('/', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
@@ -21,10 +20,10 @@ export default (db: Database) => {
     ))()
   )
 
-  router.get('/:key', async (req: Request, res: Response, next: NextFunction) =>
+  router.get('/:id', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      req.params.key.toUpperCase(),
-      controller.get_by_key,
+      parseInt(req.params.id, 10),
+      controller.get_by_id,
       result => tryCatchError(result),
       foldMap(
         error  => next({ error, message: 'Internal error' }),
