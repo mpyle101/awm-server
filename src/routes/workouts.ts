@@ -1,19 +1,15 @@
 import express, { Request, Response, NextFunction } from 'express'
-import parse from 'date-fns/parse'
 import { pipe } from 'fp-ts/lib/pipeable'
-import { tryCatch, fold, toError } from 'fp-ts/lib/Either'
+import { fold } from 'fp-ts/lib/Either'
 import { of } from 'fp-ts/lib/Task'
 
 import { Database } from '../db-utils'
-import { foldMap, parse_int, tryCatchError } from '../fp-utils'
+import { foldMap, dateFrom, parse_int, tryCatchError } from '../fp-utils'
 import { WorkoutController } from '../controllers'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
   const controller = new WorkoutController(db)
-
-  const get_date = ({ year, month, day='01' }) =>
-    new Date(parse_int(year), parse_int(month) - 1, parse_int(day))
 
   router.get('/', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
@@ -28,7 +24,7 @@ export default (db: Database) => {
 
   router.get('/:id', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      tryCatch(() => parse_int(req.params.id), toError),
+      parse_int(req.params.id),
       fold(
         error => of(next({ error, message: 'Invalid id'})),
         workout_id => pipe(
@@ -46,7 +42,7 @@ export default (db: Database) => {
 
   router.get('/:year/:month', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      tryCatch(() => get_date(req.params as any), toError),
+      dateFrom(req.params as any),
       fold(
         error => of(next({ error, message: 'Invalid date'})),
         date  => pipe(
@@ -64,7 +60,7 @@ export default (db: Database) => {
 
   router.get('/:year/:month/:day', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      tryCatch(() => get_date(req.params as any), toError),
+      dateFrom(req.params as any),
       fold(
         error => of(next({ error, message: 'Invalid date' })),
         date  => pipe(

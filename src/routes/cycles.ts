@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express'
 import { pipe } from 'fp-ts/lib/pipeable'
-import { fold, tryCatch, toError } from 'fp-ts/lib/Either'
+import { fold } from 'fp-ts/lib/Either'
 import { of } from 'fp-ts/lib/Task'
 
 import { Database } from '../db-utils'
@@ -24,7 +24,7 @@ export default (db: Database) => {
 
   router.get('/:id', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      tryCatch(() => parse_int(req.params.id), toError),
+      parse_int(req.params.id),
       fold(
         error => of(next({ error, message: 'Invalid id' })),
         workout_id => pipe(
