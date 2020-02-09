@@ -5,6 +5,7 @@ import { Task } from 'fp-ts/lib/Task'
 import { TaskEither } from 'fp-ts/lib/TaskEither'
 
 import * as E from 'fp-ts/lib/Either'
+import * as O from 'fp-ts/lib/Option'
 import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
 
@@ -17,7 +18,7 @@ export const foldMap = <E, A, B>(
 
 export const tryCatchError = <E, A, B>(f: Lazy<Promise<A>>) => TE.tryCatch(f, E.toError)
 
-export const dateFrom = ({ year, month, day = '01' }) =>
+export const dateFrom = ({ year, month, day='01' }) =>
   pipe(
     sequenceS(E.either)({
       year:  parse_int(year),
@@ -25,6 +26,18 @@ export const dateFrom = ({ year, month, day = '01' }) =>
       day:   parse_int(day)
     }),
     E.map(({ year, month, day }) => new Date(year, month - 1, day))
+  )
+
+export const numberFrom = (s?: string) =>
+  pipe(
+    O.fromNullable(s),
+    O.fold(
+      () => E.right(O.none),
+      a  => pipe(
+        parse_int(a),
+        E.map(res => O.some(res))
+      )
+    )
   )
 
 export const parse_int = (s: string) => {

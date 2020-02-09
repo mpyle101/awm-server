@@ -1,11 +1,13 @@
 import express, { Request, Response, NextFunction } from 'express'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { fold } from 'fp-ts/lib/Either'
+import { map } from 'fp-ts/lib/Option'
 import { of } from 'fp-ts/lib/Task'
 
 import { Database } from '../db-utils'
 import { foldMap, dateFrom, parse_int, tryCatchError } from '../fp-utils'
 import { WorkoutController } from '../controllers'
+import { make_error, get_params } from './utils'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
@@ -13,11 +15,17 @@ export default (db: Database) => {
 
   router.get('/', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      controller.get_all,
-      result => tryCatchError(result),
-      foldMap(
-        error  => next({ error, message: 'Internal error' }),
-        result => res.json(result)
+      get_params(req.query),
+      fold(
+        error  => of(next(make_error(400, error))),
+        params => pipe(
+          controller.by_query(params),
+          result => tryCatchError(result),
+          foldMap(
+            error  => next(make_error(500, error)),
+            result => res.json(result)
+          )
+        )
       )
     ))()
   )
@@ -26,14 +34,13 @@ export default (db: Database) => {
     (pipe(
       parse_int(req.params.id),
       fold(
-        error => of(next({ error, message: 'Invalid id'})),
+        error => of(next(make_error(400, error))),
         workout_id => pipe(
-          workout_id,
-          controller.get_by_id,
+          controller.by_id(workout_id),
           result => tryCatchError(result),
           foldMap(
-            error  => next({ error, message: 'Internal error' }),
-            result => result.length ? res.json(result) : next({ status: 404 })
+            error  => next(make_error(500, error)),
+            result => result.length ? res.json(result) : next(make_error(404))
           )
         )
       )
@@ -44,13 +51,12 @@ export default (db: Database) => {
     (pipe(
       dateFrom(req.params as any),
       fold(
-        error => of(next({ error, message: 'Invalid date'})),
+        error => of(next(make_error(400, error))),
         date  => pipe(
-          date,
-          controller.get_by_month,
+          controller.by_month(date),
           result => tryCatchError(result),
           foldMap(
-            error  => next({ error, message: 'Internal error' }),
+            error  => next(make_error(500, error)),
             result => res.json(result)
           )
         )
@@ -62,13 +68,12 @@ export default (db: Database) => {
     (pipe(
       dateFrom(req.params as any),
       fold(
-        error => of(next({ error, message: 'Invalid date' })),
+        error => of(next(make_error(400, error))),
         date  => pipe(
-          date,
-          controller.get_by_date,
+          controller.by_date(date),
           result => tryCatchError(result),
           foldMap(
-            error => next({ error, message: 'Internal error' }),
+            error  => next(make_error(500, error)),
             result => res.json(result)
           )
         )

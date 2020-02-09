@@ -70,15 +70,11 @@ const lazy_connect:Lazy<Promise<any>> = () => connect(url);
         })
 
         app.use((err, req: Request, res: Response, next: NextFunction) => {
-          res.status(err.status || 500)
-          if (err.status == 404) {
-            res.send('Not found')
-          } else {
-            res.json({
-              message: err.message,
-              error: err.error.toString()
-            })
-          }
+          res.status(err.status).json({
+            status: err.status,
+            message: err.message,
+            ...err.error ? { error: err.error.toString() } : {}
+          })
         })
 
         // Listen on provided port, on all network interfaces.

@@ -44,4 +44,22 @@ LEFT JOIN
   awm.hic_block ON awm.block.id = awm.hic_block.id AND awm.block.block_type = 'HIC'
 LEFT JOIN
   awm.fbt_block ON awm.block.id = awm.fbt_block.id AND awm.block.block_type = 'FBT'
-$1:raw
+WHERE
+  awm.workout.id
+IN (
+  SELECT
+    awm.workout.id
+  FROM
+    awm.workout
+  ${where:raw}
+  ORDER BY
+    awm.workout.id
+  ${limit:raw}
+  ${offset:raw}
+)
+ORDER BY
+  awm.workout.id,
+  awm.workout.seqno,
+  awm.block.seqno,
+  awm.set_group.seqno,
+  awm.set.setno

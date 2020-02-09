@@ -6,6 +6,7 @@ import { of } from 'fp-ts/lib/Task'
 import { Database } from '../db-utils'
 import { foldMap, tryCatchError, parse_int } from '../fp-utils'
 import { CycleController } from '../controllers'
+import { make_error } from './utils'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
@@ -16,7 +17,7 @@ export default (db: Database) => {
       controller.get_all,
       result => tryCatchError(result),
       foldMap(
-        error  => next({ error, message: 'Internal error' }),
+        error  => next(make_error(500, error)),
         result => res.json(result)
       )
     ))()
@@ -26,14 +27,14 @@ export default (db: Database) => {
     (pipe(
       parse_int(req.params.id),
       fold(
-        error => of(next({ error, message: 'Invalid id' })),
+        error => of(next(make_error(400, error))),
         workout_id => pipe(
           workout_id,
           controller.get_by_id,
           result => tryCatchError(result),
           foldMap(
-            error => next({ error, message: 'Internal error' }),
-            result => result.length ? res.json(result) : next({ status: 404 })
+            error  => next(make_error(500, error)),
+            result => result.length ? res.json(result) : next(make_error(404))
           )
         )
       )
