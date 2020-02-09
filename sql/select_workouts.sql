@@ -53,12 +53,12 @@ IN (
     awm.workout
   ${where:raw}
   ORDER BY
-    awm.workout.id
+    awm.workout.workout_date DESC
   ${limit:raw}
   ${offset:raw}
 )
 ORDER BY
-  awm.workout.id,
+  awm.workout.workout_date DESC,
   awm.workout.seqno,
   awm.block.seqno,
   awm.set_group.seqno,
