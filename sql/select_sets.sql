@@ -1,12 +1,14 @@
 SELECT
   awm.workout.workout_date AS date,
   awm.workout.id AS wrk_id,
+  awm.block.id AS blk_id,
   awm.set.id AS set_id,
   awm.workout.seqno AS wrk_no,
   awm.block.seqno AS blk_no,
   awm.set_group.seqno AS grp_no,
   awm.set.setno AS set_no,
   awm.set.set_type AS set_type,
+  awm.set.notes AS set_notes,
   awm.set.exercise AS set_exercise,
   awm.set.weight AS set_weight,
   awm.set.unit AS set_unit,
@@ -15,6 +17,7 @@ SELECT
   awm.set.distance AS set_distance,
   awm.set_group.style AS grp_style,
   awm.block.block_type AS blk_type,
+  awm.block.notes AS blk_notes,
   CASE awm.block.block_type
     WHEN 'HIC' THEN concat(awm.hic_block.style, awm.fbt_block.style)
     WHEN 'FBT' THEN concat(awm.fbt_block.style, awm.hic_block.style)

@@ -5,6 +5,7 @@ SELECT
   awm.workout.seqno AS wrk_no,
   awm.block.seqno AS blk_no,
   awm.block.block_type AS blk_type,
+  awm.block.notes AS blk_notes,
   CASE awm.block.block_type
     WHEN 'HIC' THEN concat(awm.hic_block.style, awm.fbt_block.style)
     WHEN 'FBT' THEN concat(awm.fbt_block.style, awm.hic_block.style)
