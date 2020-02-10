@@ -10,9 +10,11 @@ import { Lazy } from 'fp-ts/lib/function'
 import { connect } from './db-utils'
 import { foldMap, tryCatchError } from './fp-utils'
 
-import { 
+import {
+  create_blocks_router,
   create_cycles_router,
   create_exercises_router,
+  create_sets_router,
   create_workouts_router
 } from './routes'
 
@@ -40,12 +42,11 @@ process.on('SIGTERM', shutdown)
  * Get connection parameters from environment and store in Express.
  */
 const port = process.env.AWM_PORT || '9000'
-const url  = process.env.AWM_DB || 'postgres://jester@localhost/awm'
-const lazy_connect:Lazy<Promise<any>> = () => connect(url);
+const url  = process.env.AWM_DB || 'postgres://jester@localhost/awm';
 
 (async () => {
   await (pipe(
-    lazy_connect,
+    () => connect(url),
     result => tryCatchError(result),
     foldMap(
       error => console.log(`Failed to connect to database: ${error}`),
@@ -60,8 +61,10 @@ const lazy_connect:Lazy<Promise<any>> = () => connect(url);
         })
 
         // Set our api routes
+        app.use('/api/blocks',    create_blocks_router(db))
         app.use('/api/cycles',    create_cycles_router(db))
         app.use('/api/exercises', create_exercises_router(db))
+        app.use('/api/sets',      create_sets_router(db))
         app.use('/api/workouts',  create_workouts_router(db))
 
         // Catch all other routes and return the index file

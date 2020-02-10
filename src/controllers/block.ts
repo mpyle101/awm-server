@@ -12,18 +12,18 @@ type Clauses = {
   filter: Option<string>
 }
 
-export class WorkoutController {
-  sql_select_workouts = load_sql('select_workouts.sql')
+export class BlockController {
+  sql_select_blocks = load_sql('select_blocks.sql')
 
   constructor(private db: Database) {}
 
   by_id = (set_id: number): AsyncArray<any> => () => {
     const filter = {
-      where: where({ 'awm.workout.id': set_id }),
+      where: where({ 'awm.block.id': set_id }),
       limit: '',
       offset: ''
     }
-    return this.db.any(this.sql_select_workouts, filter)
+    return this.db.any(this.sql_select_blocks, filter)
   }
 
   by_date = (date: Date): AsyncArray<any> => () => {
@@ -32,7 +32,7 @@ export class WorkoutController {
       limit: '',
       offset: ''
     }
-    return this.db.any(this.sql_select_workouts, filter)
+    return this.db.any(this.sql_select_blocks, filter)
   }
 
   by_month = (date: Date): AsyncArray<any> => () => {
@@ -43,7 +43,7 @@ export class WorkoutController {
       limit: '',
       offset: ''
     }
-    return this.db.any(this.sql_select_workouts, filter)
+    return this.db.any(this.sql_select_blocks, filter)
   }
 
   by_query = (query: Clauses): AsyncArray<any> => () =>
@@ -53,6 +53,6 @@ export class WorkoutController {
         limit:  pipe(query.limit,  fold(() => '', a => `LIMIT ${a}`)),
         offset: pipe(query.offset, fold(() => '', a => `OFFSET ${a}`)),
       },
-      params => this.db.any(this.sql_select_workouts, params)
+      params => this.db.any(this.sql_select_blocks, params)
     )
 }

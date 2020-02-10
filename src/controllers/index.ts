@@ -1,3 +1,5 @@
+export { BlockController } from './block'
 export { CycleController } from './cycle'
 export { ExerciseController } from './exercise'
+export { SetController } from './set'
 export { WorkoutController } from './workout'
