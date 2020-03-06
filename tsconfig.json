@@ -4,7 +4,7 @@
     "tsBuildInfoFile": "./.tsbuildinfo",
     "target": "ESNext",
     "module": "commonjs",
-    "lib": ["ES2019"],
+    "lib": ["ES2020"],
     "outDir": "./build",
     "rootDir": "./src",
 
