@@ -6,7 +6,7 @@ import { of } from 'fp-ts/lib/Task'
 import { Database } from '../db-utils'
 import { foldMap, dateFrom, parse_int, tryCatchError } from '../fp-utils'
 import { BlockController } from '../controllers'
-import { make_error, get_params } from './utils'
+import { IParams, make_error, get_params } from './utils'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
@@ -14,7 +14,7 @@ export default (db: Database) => {
 
   router.get('/', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      get_params(req.query),
+      get_params(req.query as IParams),
       fold(
         error  => of(next(make_error(400, error))),
         params => pipe(
