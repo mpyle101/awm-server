@@ -24,7 +24,7 @@
     "date-fns": "2.16.1",
     "express": "4.17.1",
     "fp-ts": "2.9.3",
-    "pg-promise": "10.9.1"
+    "pg-promise": "10.9.2"
   },
   "devDependencies": {
     "@types/cors": "2.8.9",

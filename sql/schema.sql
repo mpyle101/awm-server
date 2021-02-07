@@ -22,7 +22,7 @@ CREATE TYPE awm.block_type_t AS ENUM ('MS', 'EN', 'SE', 'GC', 'FBT', 'HIC', 'HGC
 CREATE TYPE awm.weight_unit_t AS ENUM ('KG', 'LB', 'BW');
 
 CREATE TABLE awm.user (
-    id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     username VARCHAR(50),
     password VARCHAR(72),
     email TEXT,
@@ -38,14 +38,15 @@ CREATE TABLE awm.exercise (
 
 CREATE TABLE awm.cycle (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id SMALLINT NOT NULL REFERENCES awm.user (id),
     name TEXT NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL
 );
 
 CREATE TABLE awm.workout (
-    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id UUID NOT NULL REFERENCES awm.user (id),
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id SMALLINT NOT NULL REFERENCES awm.user (id),
     seqno SMALLINT NOT NULL,
     workout_date DATE CHECK (workout_date > '2015-01-01'),
     created TIMESTAMP WITHOUT TIME ZONE DEFAULT (now() AT TIME ZONE 'UTC')
@@ -67,6 +68,7 @@ CREATE TABLE awm.workout (
 -- 1 block (HGC), 1 set (ROW), 1 distance_set (3374m, 15m)
 CREATE TABLE awm.block (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id SMALLINT NOT NULL REFERENCES awm.user (id),
     workout_id SMALLINT NOT NULL REFERENCES awm.workout (id),
     block_type awm.block_type_t NOT NULL,
     seqno SMALLINT NOT NULL,
@@ -80,6 +82,7 @@ CREATE TABLE awm.block (
 -- 1 set group / 4 sets (PD, STD)
 CREATE TABLE awm.fbt_block (
     id INT NOT NULL PRIMARY KEY REFERENCES awm.block (id),
+    user_id SMALLINT NOT NULL REFERENCES awm.user (id),
     exercise TEXT NOT NULL REFERENCES awm.exercise (key),
     style awm.fbt_style_t NOT NULL,
     duration INTERVAL,
@@ -107,6 +110,7 @@ CREATE TABLE awm.fbt_block (
 -- #HIC	DESC (10@24m20s), BBRx40, BRP, SJ, RPS
 CREATE TABLE awm.hic_block (
     id INT NOT NULL PRIMARY KEY REFERENCES awm.block (id),
+    user_id SMALLINT NOT NULL REFERENCES awm.user (id),
     style awm.hic_style_t NOT NULL,
     duration INTERVAL,
     distance TEXT,
@@ -117,6 +121,7 @@ CREATE TABLE awm.hic_block (
 -- Strength Endurance
 CREATE TABLE awm.se_block (
     id INT NOT NULL PRIMARY KEY REFERENCES awm.block (id),
+    user_id SMALLINT NOT NULL REFERENCES awm.user (id),
     duration INTERVAL,
     block_type awm.block_type_t DEFAULT 'SE' CHECK (block_type = 'SE'),
     FOREIGN KEY (id, block_type) REFERENCES awm.block (id, block_type)
@@ -144,6 +149,7 @@ CREATE TABLE awm.se_block (
 -- 1 set_group (STD), 1 set (TRNR, 4m)
 CREATE TABLE awm.set_group (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id SMALLINT NOT NULL REFERENCES awm.user (id),
     block_id INT NOT NULL REFERENCES awm.block (id),
     style awm.group_style_t NOT NULL,
     seqno SMALLINT NOT NULL
@@ -157,6 +163,7 @@ CREATE TABLE awm.set_group (
 -- distance => exercise distance
 CREATE TABLE awm.set (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id SMALLINT NOT NULL REFERENCES awm.user (id),
     block_id INT NOT NULL REFERENCES awm.block (id),
     group_id INT NOT NULL REFERENCES awm.set_group (id),
     exercise TEXT NOT NULL REFERENCES awm.exercise (key),
