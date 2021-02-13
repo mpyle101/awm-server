@@ -20,14 +20,11 @@ export const format = pgp.as.format
 export const connect = async (url: string) => {
   /** Make a test connection and release it */
   const db = create_db(url)
-  try {
-    const dbc = await db.connect()
-    const version = dbc.client.serverVersion
-    dbc.done()
-    return Promise.resolve({ db, version })
-  } catch (e) {
-    return Promise.reject(e)
-  }
+  const dbc = await db.connect()
+  const version = dbc.client.serverVersion
+  dbc.done()
+
+  return { db, version }
 }
 
 export const load_sql = (fname: string) => {
@@ -37,14 +34,12 @@ export const load_sql = (fname: string) => {
 
 export const where = (values: object, and=true) => {
   const conditions = Object.entries(values).reduce((acc, [key, prop]) => {
-    if (is_simple(prop)) {
-      acc.push(pgp.as.format('$(key:raw) = $(prop)', { key, prop }))
-    } else {
-      Object.entries(prop).forEach(([op, value]) =>
-        acc.push(pgp.as.format(`$(key:raw) ${op} $(value)`, { key, value }))
-      )
-    }
-    return acc
+    const params = is_simple(prop)
+      ? [pgp.as.format(`$1:name ${prop === null ? 'IS NULL' : '= $2'}`, [key, prop])]
+      : Object.entries(prop).map(([op, value]) =>
+        pgp.as.format(`$1:name ${op} ${value === null ? 'NULL' : '$2'}`, [key, value]))
+
+    return [...acc, ...params]
   }, [] as string[])
 
   return 'WHERE ' + conditions.join(and ? ' AND ' : ' OR ')
