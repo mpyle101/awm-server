@@ -1,7 +1,7 @@
 import { addMonths, startOfMonth } from 'date-fns'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { sequenceS } from 'fp-ts/lib/Apply'
-import { Option, option, fold, getOrElse } from 'fp-ts/lib/Option'
+import { Option, fold, getOrElse } from 'fp-ts/lib/Option'
 
 import { Database, load_sql, format, where } from '../db-utils'
 import { AsyncArray } from '../fp-utils'

@@ -1,9 +1,7 @@
 import { join, resolve } from 'path'
-import { QueryFile, IDatabase } from 'pg-promise'
+import { IDatabase } from 'pg-promise'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { sequenceS } from 'fp-ts/lib/Apply'
-import * as E from 'fp-ts/lib/Either'
-import * as O from 'fp-ts/lib/Option'
 
 import { AsyncArray, numberFrom } from './fp-utils'
 

@@ -1,7 +1,7 @@
 import { addMonths, startOfMonth } from 'date-fns'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { sequenceS } from 'fp-ts/lib/Apply'
-import { Option, option, fold, getOrElse } from 'fp-ts/lib/Option'
+import { Option, fold, toUndefined } from 'fp-ts/lib/Option'
 
 import { Database, load_sql, format, where } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
@@ -17,42 +17,46 @@ export class SetsController {
 
   constructor(private db: Database) {}
 
-  by_id = (set_id: number): AsyncArray<any> => () => {
-    const filter = {
-      where: where({ 'id': set_id }),
-      limit: '',
-      offset: ''
+  private query = (filter: {
+    where?: string
+    limit?: number
+    offset?: number
+  }) => {
+    const params = {
+      where:  filter.where || '',
+      limit:  filter.limit  ? `LIMIT ${filter.limit}` : '',
+      offset: filter.offset ? `OFFSET ${filter.offset}` : ''
     }
-    return this.db.any(this.sql_select_sets, filter)
+    return this.db.any(this.sql_select_sets, params)
   }
 
-  by_date = (date: Date): AsyncArray<any> => () => {
-    const filter = {
-      where: where({ 'workout_date': date }),
-      limit: '',
-      offset: ''
-    }
-    return this.db.any(this.sql_select_sets, filter)
-  }
+  by_id = (set_id: number): AsyncArray<any> => () =>
+    this.query({ where: where({ 'id': set_id }) })
+
+  by_date = (date: Date): AsyncArray<any> => () =>
+    this.query({ where: where({ 'workout_date': date }) })
 
   by_month = (date: Date): AsyncArray<any> => () => {
     const start  = startOfMonth(date)
     const end    = addMonths(start, 1)
-    const filter = {
-      where: where({'workout_date': { '>=': start, '<': end } }),
-      limit: '',
-      offset: ''
-    }
-    return this.db.any(this.sql_select_sets, filter)
+    return this.query({
+      where: where({ 'workout_date': { '>=': start, '<': end } })
+    })
   }
 
   by_query = (query: Clauses): AsyncArray<any> => () =>
     pipe(
       {
-        where:  pipe(query.filter, getOrElse(() => '')),
-        limit:  pipe(query.limit,  fold(() => '', a => `LIMIT ${a}`)),
-        offset: pipe(query.offset, fold(() => '', a => `OFFSET ${a}`)),
+        where:  pipe(query.filter, fold(() => undefined, a => build_where(a))),
+        limit:  pipe(query.limit,  toUndefined),
+        offset: pipe(query.offset, toUndefined),
       },
-      params => this.db.any(this.sql_select_sets, params)
+      params => this.query(params)
     )
+}
+
+
+const build_where = (filter: string) => {
+  const date = new Date(2021, 1, 12);
+  return where({ 'workout_date': date })
 }

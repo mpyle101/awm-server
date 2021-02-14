@@ -40,6 +40,9 @@
   "jest": {
     "preset": "ts-jest",
     "verbose": true,
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "testPathIgnorePatterns": [
+      "/test-data/"
+    ]
   }
 }

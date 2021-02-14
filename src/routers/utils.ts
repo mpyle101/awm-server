@@ -23,27 +23,11 @@ export const get_params = ({ filter, limit, offset }) =>
       limit:  numberFrom(limit),
       offset: numberFrom(offset),
       filter: pipe(
-        fromNullable(filter),
+        fromNullable<string>(filter),
         fold(
           () => right(none),
-          a  => right(some<string>(a))
+          a  => right(some(a))
         )
       )
     })
   )
-
-/*
-const limit_clause = limit =>
-  pipe(
-    numberFrom(limit),
-    O.map(o => pipe(o, E.map(v => `LIMIT ${v}`))),
-    O.getOrElse(() => E.right(''))
-  )
-
-const offset_clause = offset =>
-  pipe(
-    numberFrom(offset),
-    O.map(o => pipe(o, E.map(v => `OFFSET ${v}`))),
-    O.getOrElse(() => E.right(''))
-  )
-*/
