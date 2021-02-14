@@ -14,7 +14,7 @@
   "main": "build/server.js",
   "scripts": {
     "build": "tsc",
-    "clean": "rm -r public/* build/*",
+    "clean": "rm -r .tsbuildinfo build/*",
     "lint": "tslint",
     "postbuild": "cp -r ./sql ./build",
     "start": "npm run build && node build/server.js",
