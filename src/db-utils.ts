@@ -1,20 +1,18 @@
 import { join, resolve } from 'path'
-import { ITask, QueryFile } from 'pg-promise'
-
+import { QueryFile, IDatabase } from 'pg-promise'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { sequenceS } from 'fp-ts/lib/Apply'
-
-import { AsyncArray, numberFrom } from './fp-utils'
-
 import * as E from 'fp-ts/lib/Either'
 import * as O from 'fp-ts/lib/Option'
+
+import { AsyncArray, numberFrom } from './fp-utils'
 
 import pg_promise = require('pg-promise')
 const pgp = pg_promise({ capSQL: true })
 
 const create_db = (url: string) => pgp(url)
-export type Database = ReturnType<typeof create_db>
 
+export type Database = IDatabase<any>
 export const format = pgp.as.format
 
 export const connect = async (url: string) => {

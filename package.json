@@ -13,12 +13,13 @@
   ],
   "main": "build/server.js",
   "scripts": {
-    "build": "tsc",
-    "clean": "rm -r .tsbuildinfo build/*",
-    "lint": "tslint",
+    "build"    : "tsc",
+    "clean"    : "rm -r .tsbuildinfo build/*",
+    "lint"     : "tslint",
     "postbuild": "cp -r ./sql ./build",
-    "start": "npm run build && node build/server.js",
-    "test": "jest"
+    "rebuild"  : "npm run clean && npm run build",
+    "start"    : "npm run build && node build/server.js",
+    "test"     : "jest"
   },
   "dependencies": {
     "cors": "2.8.5",
