@@ -1,4 +1,4 @@
-import { join } from 'path'
+import { join, resolve } from 'path'
 import { ITask, QueryFile } from 'pg-promise'
 
 import { pipe } from 'fp-ts/lib/pipeable'
@@ -13,7 +13,7 @@ import pg_promise = require('pg-promise')
 const pgp = pg_promise({ capSQL: true })
 
 const create_db = (url: string) => pgp(url)
-export type Database = ReturnType<typeof create_db> | ITask<{}>
+export type Database = ReturnType<typeof create_db>
 
 export const format = pgp.as.format
 
@@ -28,7 +28,7 @@ export const connect = async (url: string) => {
 }
 
 export const load_sql = (fname: string) => {
-  const path = join(__dirname, 'sql', fname)
+  const path = resolve(join('sql', fname))
   return new pgp.QueryFile(path, { minify: true })
 }
 
@@ -37,7 +37,7 @@ export const where = (values: object, and=true) => {
     const params = is_simple(prop)
       ? [pgp.as.format(`$1:name ${prop === null ? 'IS NULL' : '= $2'}`, [key, prop])]
       : Object.entries(prop).map(([op, value]) =>
-        pgp.as.format(`$1:name ${op} ${value === null ? 'NULL' : '$2'}`, [key, value]))
+          pgp.as.format(`$1:name ${op} ${value === null ? 'NULL' : '$2'}`, [key, value]))
 
     return [...acc, ...params]
   }, [] as string[])

@@ -5,12 +5,12 @@ import { of } from 'fp-ts/lib/Task'
 
 import { Database } from '../db-utils'
 import { foldMap, dateFrom, parse_int, tryCatchError } from '../fp-utils'
-import { BlockController } from '../controllers'
+import { WorkoutsController } from '../controllers'
 import { IParams, make_error, get_params } from './utils'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
-  const controller = new BlockController(db)
+  const controller = new WorkoutsController(db)
 
   router.get('/', (req: Request, res: Response, next: NextFunction) =>
     (pipe(

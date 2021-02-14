@@ -7,7 +7,7 @@ import express, { Request, Response, NextFunction } from 'express'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { Lazy } from 'fp-ts/lib/function'
 
-import { connect } from './db-utils'
+import { Database, connect } from './db-utils'
 import { foldMap, tryCatchError } from './fp-utils'
 
 import {
@@ -16,8 +16,9 @@ import {
   create_exercises_router,
   create_sets_router,
   create_workouts_router
-} from './routes'
+} from './routers'
 
+let database: Database
 const app = express()
 const server = http.createServer(app)
 
@@ -33,6 +34,7 @@ app.use(express.static(path.join(__dirname, '../public')))
 const shutdown = () => {
   console.log('\nShutting down')
   server.close()
+  database.$pool.end()
 }
 process.on('SIGINT', shutdown)
 process.on('SIGTERM', shutdown)
@@ -52,6 +54,7 @@ const url  = process.env.AWM_DB || 'postgres://jester@localhost/awm';
       error => console.log(`Failed to connect to database: ${error}`),
       ({ db, version }) => {
         console.log(`Connected to Postgres:`, version)
+        database = db
 
         // app.use((req, res, next) => setTimeout(next, 1000))
 

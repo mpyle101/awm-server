@@ -1,7 +1,7 @@
 import { Database } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
 
-export class ExerciseController {
+export class ExercisesController {
 
   constructor(private db: Database) {}
 

@@ -5,12 +5,12 @@ import { of } from 'fp-ts/lib/Task'
 
 import { Database } from '../db-utils'
 import { foldMap, tryCatchError, parse_int } from '../fp-utils'
-import { CycleController } from '../controllers'
+import { CyclesController } from '../controllers'
 import { make_error } from './utils'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
-  const controller = new CycleController(db)
+  const controller = new CyclesController(db)
 
   router.get('/', (req: Request, res: Response, next: NextFunction) =>
     (pipe(

@@ -1,7 +1,7 @@
 import { Database } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
 
-export class CycleController {
+export class CyclesController {
   sql_select_by_id = 'SELECT * FROM awm.cycle WHERE awm.cycle.id = ${cycle_id}'
 
   constructor(private db: Database) {}

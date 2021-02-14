@@ -1,0 +1,5 @@
+export { default as create_blocks_router } from './blocks.router'
+export { default as create_cycles_router } from './cycles.router'
+export { default as create_exercises_router } from './exercises.router'
+export { default as create_sets_router } from './sets.router'
+export { default as create_workouts_router } from './workouts.router'

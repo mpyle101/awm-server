@@ -4,12 +4,12 @@ import { pipe } from 'fp-ts/lib/pipeable'
 import { Database } from '../db-utils'
 import { foldMap, tryCatchError } from '../fp-utils'
 
-import { ExerciseController } from '../controllers'
+import { ExercisesController } from '../controllers'
 import { make_error } from './utils'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
-  const controller = new ExerciseController(db)
+  const controller = new ExercisesController(db)
 
   router.get('/', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
