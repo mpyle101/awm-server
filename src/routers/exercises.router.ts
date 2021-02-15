@@ -1,10 +1,9 @@
 import express, { Request, Response, NextFunction } from 'express'
 import { pipe } from 'fp-ts/lib/pipeable'
 
+import { ExercisesController } from '../controllers'
 import { Database } from '../db-utils'
 import { foldMap, tryCatchError } from '../fp-utils'
-
-import { ExercisesController } from '../controllers'
 import { make_error } from './utils'
 
 export default (db: Database) => {

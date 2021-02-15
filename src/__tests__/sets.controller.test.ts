@@ -29,12 +29,11 @@ describe('Sets controller tests', () => {
     const sets = await controller.by_query({
       limit: none,
       offset: none,
-      filter: some<string>('bob')
+      filter: some({ bob: 'true' })
     })()
 
     expect(sets.length).toEqual(19)
     expect(sets[0]).toMatchObject(SETS_20210212[0])
     expect(sets[1]).toMatchObject(SETS_20210212[1])
   })
-
 })

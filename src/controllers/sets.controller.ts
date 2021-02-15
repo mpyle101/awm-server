@@ -3,14 +3,9 @@ import { pipe } from 'fp-ts/lib/pipeable'
 import { sequenceS } from 'fp-ts/lib/Apply'
 import { Option, fold, toUndefined } from 'fp-ts/lib/Option'
 
-import { Database, load_sql, format, where } from '../db-utils'
+import { Database, load_sql, where } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
-
-type Clauses = {
-  limit: Option<number>
-  offset: Option<number>
-  filter: Option<string>
-}
+import { QueryParams } from './types'
 
 export class SetsController {
   sql_select_sets = load_sql('select_sets.sql')
@@ -37,26 +32,26 @@ export class SetsController {
     this.query({ where: where({ 'workout_date': date }) })
 
   by_month = (date: Date): AsyncArray<any> => () => {
-    const start  = startOfMonth(date)
-    const end    = addMonths(start, 1)
+    const start = startOfMonth(date)
+    const end   = addMonths(start, 1)
     return this.query({
       where: where({ 'workout_date': { '>=': start, '<': end } })
     })
   }
 
-  by_query = (query: Clauses): AsyncArray<any> => () =>
+  by_query = (query: QueryParams): AsyncArray<any> => () =>
     pipe(
       {
         where:  pipe(query.filter, fold(() => undefined, a => build_where(a))),
         limit:  pipe(query.limit,  toUndefined),
-        offset: pipe(query.offset, toUndefined),
+        offset: pipe(query.offset, toUndefined)
       },
       params => this.query(params)
     )
 }
 
 
-const build_where = (filter: string) => {
+const build_where = (filter: Record<string, string>) => {
   const date = new Date(2021, 1, 12);
   return where({ 'workout_date': date })
 }

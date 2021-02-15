@@ -3,9 +3,9 @@ import { pipe } from 'fp-ts/lib/pipeable'
 import { fold } from 'fp-ts/lib/Either'
 import { of } from 'fp-ts/lib/Task'
 
-import { Database } from '../db-utils'
-import { foldMap, tryCatchError, parse_int } from '../fp-utils'
 import { CyclesController } from '../controllers'
+import { Database } from '../db-utils'
+import { foldMap, tryCatchError, integerFrom } from '../fp-utils'
 import { make_error } from './utils'
 
 export default (db: Database) => {
@@ -25,7 +25,7 @@ export default (db: Database) => {
 
   router.get('/:id', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      parse_int(req.params.id),
+      integerFrom(req.params.id),
       fold(
         error => of(next(make_error(400, error))),
         workout_id => pipe(

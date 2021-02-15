@@ -1,16 +1,11 @@
 import { addMonths, startOfMonth } from 'date-fns'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { sequenceS } from 'fp-ts/lib/Apply'
-import { Option, fold, getOrElse } from 'fp-ts/lib/Option'
+import { Option, fold } from 'fp-ts/lib/Option'
 
-import { Database, load_sql, format, where } from '../db-utils'
+import { Database, load_sql, where } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
-
-type Clauses = {
-  limit: Option<number>
-  offset: Option<number>
-  filter: Option<string>
-}
+import { QueryParams } from './types'
 
 export class BlocksController {
   sql_select_blocks = load_sql('select_blocks.sql')
@@ -46,10 +41,10 @@ export class BlocksController {
     return this.db.any(this.sql_select_blocks, filter)
   }
 
-  by_query = (query: Clauses): AsyncArray<any> => () =>
+  by_query = (query: QueryParams): AsyncArray<any> => () =>
     pipe(
       {
-        where:  pipe(query.filter, getOrElse(() => '')),
+        where:  pipe(query.filter, fold(() => '', a => '')),
         limit:  pipe(query.limit,  fold(() => '', a => `LIMIT ${a}`)),
         offset: pipe(query.offset, fold(() => '', a => `OFFSET ${a}`)),
       },

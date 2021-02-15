@@ -3,10 +3,10 @@ import { pipe } from 'fp-ts/lib/pipeable'
 import { fold } from 'fp-ts/lib/Either'
 import { of } from 'fp-ts/lib/Task'
 
-import { Database } from '../db-utils'
-import { foldMap, dateFrom, parse_int, tryCatchError } from '../fp-utils'
 import { SetsController } from '../controllers'
-import { IParams, make_error, get_params } from './utils'
+import { Database } from '../db-utils'
+import { foldMap, dateFrom, integerFrom, tryCatchError } from '../fp-utils'
+import { make_error, get_params } from './utils'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
@@ -14,7 +14,7 @@ export default (db: Database) => {
 
   router.get('/', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      get_params(req.query as IParams),
+      get_params(req.query),
       fold(
         error  => of(next(make_error(400, error))),
         params => pipe(
@@ -31,7 +31,7 @@ export default (db: Database) => {
 
   router.get('/:id', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      parse_int(req.params.id),
+      integerFrom(req.params.id),
       fold(
         error => of(next(make_error(400, error))),
         workout_id => pipe(

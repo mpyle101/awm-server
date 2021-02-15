@@ -21,9 +21,9 @@ export const tryCatchError = <E, A, B>(f: Lazy<Promise<A>>) => TE.tryCatch(f, E.
 export const dateFrom = ({ year, month, day='01' }) =>
   pipe(
     sequenceS(E.either)({
-      year:  parse_int(year),
-      month: parse_int(month),
-      day:   parse_int(day)
+      year:  integerFrom(year),
+      month: integerFrom(month),
+      day:   integerFrom(day)
     }),
     E.map(({ year, month, day }) => new Date(year, month - 1, day))
   )
@@ -34,13 +34,22 @@ export const numberFrom = (s?: string) =>
     O.fold(
       () => E.right(O.none),
       a  => pipe(
-        parse_int(a),
+        integerFrom(a),
         E.map(res => O.some(res))
       )
     )
   )
 
-export const parse_int = (s: string) => {
+export const recordFrom = (obj: { [x: string]: string }) =>
+  pipe(
+    Object.keys(obj).length ? O.some(obj) : O.none,
+    O.fold(
+      () => E.right(O.none),
+      a  => E.right(O.some(a as Record<string, string>))
+    )
+  )
+
+export const integerFrom = (s: string) => {
   const result = parseInt(s, 10)
   return isNaN(result) ? E.left(new Error('Not a number')) : E.right(result)
 }
