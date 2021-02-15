@@ -2,37 +2,32 @@ import { addMonths, startOfMonth } from 'date-fns'
 
 import { Database, where } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
-
-import { create_base_controller } from './base.controller'
-import { SetRecord } from './types'
+import {
+  SetRecord,
+  QueryParams,
+  create_sets_repository
+} from '../repositories'
 
 export const create_controller = (db: Database) => {
-  const controller = create_base_controller(db, 'select_sets.sql')
+  const repository = create_sets_repository(db)
 
-  const by_id = (set_id: number): AsyncArray<SetRecord> => () =>
-    controller.query({ where: where({ 'set.id': set_id }) })
+  const by_id = (set_id: number): AsyncArray<SetRecord> =>
+    () => repository.by_id(set_id)
 
-  const by_date = (date: Date): AsyncArray<SetRecord> => () =>
-    controller.query({ where: where({ 'workout_date': date }) })
+  const by_date = (date: Date): AsyncArray<SetRecord> =>
+    () => repository.by_date(date)
 
-  const by_month = (date: Date): AsyncArray<SetRecord> => () => {
-    const start = startOfMonth(date)
-    const end   = addMonths(start, 1)
-    return controller.query({
-      where: where({ 'workout_date': { '>=': start, '<': end } })
-    })
-  }
+  const by_month = (date: Date): AsyncArray<SetRecord> =>
+    () => repository.by_month(date)
 
-  const filter = (filter: Record<string, string>) => {
-    const date = new Date(2021, 1, 12);
-    return where({ 'workout_date': date })
-  }
+  const by_query = (params: QueryParams): AsyncArray<any> =>
+    () => repository.by_query(params)
 
   return {
     by_id,
     by_date,
     by_month,
-    by_query: controller.by_query<SetRecord>(filter)
+    by_query
   }
 }
 

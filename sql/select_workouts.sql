@@ -1,8 +1,8 @@
 SELECT
   awm.workout.workout_date AS date,
   awm.workout.id AS wrk_id,
-  awm.set.id AS set_id,
   awm.block.id AS blk_id,
+  awm.set.id AS set_id,
   awm.workout.seqno AS wrk_no,
   awm.block.seqno AS blk_no,
   awm.set_group.seqno AS grp_no,
@@ -35,35 +35,25 @@ SELECT
   END AS blk_distance,
   awm.workout.created
 FROM
-  awm.workout
+  awm.set
 INNER JOIN
-  awm.block ON awm.workout.id = awm.block.workout_id
+  awm.set_group ON awm.set.group_id = awm.set_group.id
 INNER JOIN
-  awm.set_group ON awm.block.id = awm.set_group.block_id
+  awm.block ON awm.set_group.block_id = awm.block.id
 INNER JOIN
-  awm.set ON awm.set_group.id = awm.set.group_id
+  awm.workout ON awm.block.workout_id = awm.workout.id
 LEFT JOIN
   awm.se_block ON awm.block.id = awm.se_block.id AND awm.block.block_type = 'SE'
 LEFT JOIN
   awm.hic_block ON awm.block.id = awm.hic_block.id AND awm.block.block_type = 'HIC'
 LEFT JOIN
   awm.fbt_block ON awm.block.id = awm.fbt_block.id AND awm.block.block_type = 'FBT'
-WHERE
-  awm.workout.id
-IN (
-  SELECT
-    awm.workout.id
-  FROM
-    awm.workout
-  ${where:raw}
-  ORDER BY
-    awm.workout.workout_date DESC
-  ${limit:raw}
-  ${offset:raw}
-)
+${where:raw}
 ORDER BY
   awm.workout.workout_date DESC,
   awm.workout.seqno,
   awm.block.seqno,
   awm.set_group.seqno,
   awm.set.setno
+${limit:raw}
+${offset:raw}

@@ -1,26 +1,22 @@
 import { Database, where } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
-
-import { create_base_controller } from './base.controller'
-import { ExerciseRecord } from './types'
+import {
+  ExerciseRecord,
+  QueryParams,
+  create_exercises_repository
+} from '../repositories'
 
 export const create_controller = (db: Database) => {
-  const controller = create_base_controller(db, 'select_exercises.sql')
+  const repository = create_exercises_repository(db)
 
-  const by_key = (key: string): AsyncArray<ExerciseRecord> => () =>
-    controller.query({ where: where({ key }) })
+  const by_key = (key: string): AsyncArray<ExerciseRecord> =>
+    () => repository.by_key(key)
 
-  const filter = (filter: Record<string, string>) => {
-    const { key, name } = filter
-    const clauses = {
-      ...(key ? { key } : {}),
-      ...(name ? { name } : {})
-    }
-    return Object.keys(clauses).length ? where(clauses) : ''
-  }
+  const by_query = (params: QueryParams): AsyncArray<any> =>
+    () => repository.by_query(params)
 
   return {
     by_key,
-    by_query: controller.by_query<ExerciseRecord>(filter)
+    by_query
   }
 }

@@ -2,30 +2,27 @@ import { addMonths, startOfMonth } from 'date-fns'
 
 import { Database, where } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
-
-import { create_base_controller } from './base.controller'
+import { QueryParams, create_workouts_repository } from '../repositories'
 
 export const create_controller = (db: Database) => {
-  const controller = create_base_controller(db, 'select_workouts.sql')
+  const repository = create_workouts_repository(db)
 
-  const by_id = (workout_id: number): AsyncArray<any> => () =>
-    controller.query({ where: where({ 'workout.id': workout_id }) })
+  const by_id = (workout_id: number): AsyncArray<any> =>
+    () => repository.by_id(workout_id)
 
-  const by_date = (date: Date): AsyncArray<any> => () =>
-    controller.query({ where: where({ 'workout_date': date }) })
+  const by_date = (date: Date): AsyncArray<any> =>
+    () => repository.by_date(date)
 
-  const by_month = (date: Date): AsyncArray<any> => () => {
-    const start = startOfMonth(date)
-    const end   = addMonths(start, 1)
-    return controller.query({
-      where: where({ 'workout_date': { '>=': start, '<': end } })
-    })
-  }
+  const by_month = (date: Date): AsyncArray<any> =>
+    () => repository.by_month(date)
+
+  const by_query = (params: QueryParams): AsyncArray<any> =>
+    () => repository.by_query(params)
 
   return {
     by_id,
     by_date,
     by_month,
-    by_query: controller.by_query(() => '')
+    by_query
   }
 }
