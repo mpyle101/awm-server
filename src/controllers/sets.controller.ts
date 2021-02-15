@@ -1,28 +1,14 @@
 import { addMonths, startOfMonth } from 'date-fns'
-import { pipe } from 'fp-ts/lib/pipeable'
-import { sequenceS } from 'fp-ts/lib/Apply'
-import { Option, fold, toUndefined } from 'fp-ts/lib/Option'
 
-import { Database, load_sql, where } from '../db-utils'
+import { Database, where } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
-import { QueryParams } from './types'
 
-export class SetsController {
-  sql_select_sets = load_sql('select_sets.sql')
+import { BaseController } from './base.controller'
 
-  constructor(private db: Database) {}
+export class SetsController extends BaseController {
 
-  private query = (filter: {
-    where?: string
-    limit?: number
-    offset?: number
-  }) => {
-    const params = {
-      where:  filter.where || '',
-      limit:  filter.limit  ? `LIMIT ${filter.limit}` : '',
-      offset: filter.offset ? `OFFSET ${filter.offset}` : ''
-    }
-    return this.db.any(this.sql_select_sets, params)
+  constructor(db: Database) {
+    super(db, 'select_sets.sql')
   }
 
   by_id = (set_id: number): AsyncArray<any> => () =>
@@ -39,19 +25,9 @@ export class SetsController {
     })
   }
 
-  by_query = (query: QueryParams): AsyncArray<any> => () =>
-    pipe(
-      {
-        where:  pipe(query.filter, fold(() => undefined, a => build_where(a))),
-        limit:  pipe(query.limit,  toUndefined),
-        offset: pipe(query.offset, toUndefined)
-      },
-      params => this.query(params)
-    )
+  handle_filter = (filter: Record<string, string>) => {
+    const date = new Date(2021, 1, 12);
+    return where({ 'workout_date': date })
+  }
 }
 
-
-const build_where = (filter: Record<string, string>) => {
-  const date = new Date(2021, 1, 12);
-  return where({ 'workout_date': date })
-}

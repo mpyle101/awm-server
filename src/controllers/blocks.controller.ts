@@ -1,53 +1,31 @@
 import { addMonths, startOfMonth } from 'date-fns'
-import { pipe } from 'fp-ts/lib/pipeable'
-import { sequenceS } from 'fp-ts/lib/Apply'
-import { Option, fold } from 'fp-ts/lib/Option'
 
-import { Database, load_sql, where } from '../db-utils'
+import { Database, where } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
-import { QueryParams } from './types'
 
-export class BlocksController {
-  sql_select_blocks = load_sql('select_blocks.sql')
+import { BaseController } from './base.controller'
 
-  constructor(private db: Database) {}
+const EMPTY_STRING = ''
 
-  by_id = (set_id: number): AsyncArray<any> => () => {
-    const filter = {
-      where: where({ 'id': set_id }),
-      limit: '',
-      offset: ''
-    }
-    return this.db.any(this.sql_select_blocks, filter)
+export class BlocksController extends BaseController {
+
+  constructor(db: Database) {
+    super(db, 'select_blocks.sql')
   }
 
-  by_date = (date: Date): AsyncArray<any> => () => {
-    const filter = {
-      where: where({ 'workout_date': date }),
-      limit: '',
-      offset: ''
-    }
-    return this.db.any(this.sql_select_blocks, filter)
-  }
+  by_id = (block_id: number): AsyncArray<any> => () =>
+    this.query({ where: where({ 'id': block_id }) })
+
+  by_date = (date: Date): AsyncArray<any> => () =>
+    this.query({ where: where({ 'workout_date': date }) })
 
   by_month = (date: Date): AsyncArray<any> => () => {
-    const start  = startOfMonth(date)
-    const end    = addMonths(start, 1)
-    const filter = {
-      where: where({'workout_date': { '>=': start, '<': end } }),
-      limit: '',
-      offset: ''
-    }
-    return this.db.any(this.sql_select_blocks, filter)
+    const start = startOfMonth(date)
+    const end   = addMonths(start, 1)
+    return this.query({
+      where: where({ 'workout_date': { '>=': start, '<': end } })
+    })
   }
 
-  by_query = (query: QueryParams): AsyncArray<any> => () =>
-    pipe(
-      {
-        where:  pipe(query.filter, fold(() => '', a => '')),
-        limit:  pipe(query.limit,  fold(() => '', a => `LIMIT ${a}`)),
-        offset: pipe(query.offset, fold(() => '', a => `OFFSET ${a}`)),
-      },
-      params => this.db.any(this.sql_select_blocks, params)
-    )
+  handle_filter = (filter: Record<string, string>) => EMPTY_STRING
 }

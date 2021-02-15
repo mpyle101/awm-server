@@ -4,7 +4,7 @@ import { fold } from 'fp-ts/lib/Either'
 import { of } from 'fp-ts/lib/Task'
 
 import { Database } from '../db-utils'
-import { foldMap, dateFrom, integerFrom, tryCatchError } from '../fp-utils'
+import { foldMap, from_date, from_intstr, tryCatchError } from '../fp-utils'
 import { make_error, get_params } from './utils'
 
 import { WorkoutsController } from '../controllers'
@@ -32,7 +32,7 @@ export default (db: Database) => {
 
   router.get('/:id', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      integerFrom(req.params.id),
+      from_intstr(req.params.id),
       fold(
         error => of(next(make_error(400, error))),
         workout_id => pipe(
@@ -49,7 +49,7 @@ export default (db: Database) => {
 
   router.get('/:year/:month', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      dateFrom(req.params as any),
+      from_date(req.params as any),
       fold(
         error => of(next(make_error(400, error))),
         date  => pipe(
@@ -66,7 +66,7 @@ export default (db: Database) => {
 
   router.get('/:year/:month/:day', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      dateFrom(req.params as any),
+      from_date(req.params as any),
       fold(
         error => of(next(make_error(400, error))),
         date  => pipe(

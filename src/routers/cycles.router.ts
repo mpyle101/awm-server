@@ -5,8 +5,8 @@ import { of } from 'fp-ts/lib/Task'
 
 import { CyclesController } from '../controllers'
 import { Database } from '../db-utils'
-import { foldMap, tryCatchError, integerFrom } from '../fp-utils'
-import { make_error } from './utils'
+import { foldMap, tryCatchError, from_date, from_intstr } from '../fp-utils'
+import { get_params, make_error } from './utils'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
@@ -14,27 +14,49 @@ export default (db: Database) => {
 
   router.get('/', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      controller.get_all,
-      result => tryCatchError(result),
-      foldMap(
-        error  => next(make_error(500, error)),
-        result => res.json(result)
+      get_params(req.query),
+      fold(
+        error => of(next(make_error(400, error))),
+        params => pipe(
+          controller.by_query(params),
+          result => tryCatchError(result),
+          foldMap(
+            error => next(make_error(500, error)),
+            result => res.json(result)
+          )
+        )
       )
     ))()
   )
 
   router.get('/:id', (req: Request, res: Response, next: NextFunction) =>
     (pipe(
-      integerFrom(req.params.id),
+      from_intstr(req.params.id),
       fold(
         error => of(next(make_error(400, error))),
-        workout_id => pipe(
-          workout_id,
-          controller.get_by_id,
+        cycle_id => pipe(
+          controller.by_id(cycle_id),
           result => tryCatchError(result),
           foldMap(
-            error  => next(make_error(500, error)),
+            error => next(make_error(500, error)),
             result => result.length ? res.json(result) : next(make_error(404))
+          )
+        )
+      )
+    ))()
+  )
+
+  router.get('/:year/:month', (req: Request, res: Response, next: NextFunction) =>
+    (pipe(
+      from_date(req.params as any),
+      fold(
+        error => of(next(make_error(400, error))),
+        date => pipe(
+          controller.by_month(date),
+          result => tryCatchError(result),
+          foldMap(
+            error => next(make_error(500, error)),
+            result => res.json(result)
           )
         )
       )

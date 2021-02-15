@@ -1,13 +1,23 @@
-import { Database } from '../db-utils'
+import { Database, where } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
 
-export class ExercisesController {
+import { BaseController } from './base.controller'
 
-  constructor(private db: Database) {}
+export class ExercisesController extends BaseController{
 
-  get_all: AsyncArray<any> = () =>
-    this.db.many('SELECT * FROM awm.exercise')
+  constructor(db: Database) {
+    super(db, 'select_exercises.sql')
+  }
 
-  get_by_key = (key: string): AsyncArray<any> => () =>
-    this.db.any('SELECT * FROM awm.exercise WHERE key = ${key}', { key })
+  by_key = (key: string): AsyncArray<any> => () =>
+    this.query({ where: where({ key }) })
+
+  handle_filter = (filter: Record<string, string>) => {
+    const { key, name } = filter
+    const clauses = {
+      ...(key  ? { key }  : {}),
+      ...(name ? { name } : {})
+    }
+    return Object.keys(clauses).length ? where(clauses) : ''
+  }
 }

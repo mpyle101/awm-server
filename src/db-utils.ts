@@ -3,7 +3,7 @@ import { IDatabase } from 'pg-promise'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { sequenceS } from 'fp-ts/lib/Apply'
 
-import { AsyncArray, numberFrom } from './fp-utils'
+import { AsyncArray } from './fp-utils'
 
 import pg_promise = require('pg-promise')
 const pgp = pg_promise({ capSQL: true })

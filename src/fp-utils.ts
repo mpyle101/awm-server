@@ -18,29 +18,36 @@ export const foldMap = <E, A, B>(
 
 export const tryCatchError = <E, A, B>(f: Lazy<Promise<A>>) => TE.tryCatch(f, E.toError)
 
-export const dateFrom = ({ year, month, day='01' }) =>
+export const from_date = ({ year, month, day='01' }) =>
   pipe(
     sequenceS(E.either)({
-      year:  integerFrom(year),
-      month: integerFrom(month),
-      day:   integerFrom(day)
+      year:  from_intstr(year),
+      month: from_intstr(month),
+      day:   from_intstr(day)
     }),
     E.map(({ year, month, day }) => new Date(year, month - 1, day))
   )
 
-export const numberFrom = (s?: string) =>
+export const from_numstr = (s?: string) =>
   pipe(
     O.fromNullable(s),
     O.fold(
       () => E.right(O.none),
       a  => pipe(
-        integerFrom(a),
+        from_intstr(a),
         E.map(res => O.some(res))
       )
     )
   )
 
-export const recordFrom = (obj: { [x: string]: string }) =>
+export const from_intstr = (s: string) => {
+  const result = parseInt(s, 10)
+  return isNaN(result) 
+    ? E.left(new Error(`Not a number: ${s}`))
+    : E.right(result)
+}
+
+export const from_record = (obj: { [x: string]: string }) =>
   pipe(
     Object.keys(obj).length ? O.some(obj) : O.none,
     O.fold(
@@ -48,8 +55,3 @@ export const recordFrom = (obj: { [x: string]: string }) =>
       a  => E.right(O.some(a as Record<string, string>))
     )
   )
-
-export const integerFrom = (s: string) => {
-  const result = parseInt(s, 10)
-  return isNaN(result) ? E.left(new Error('Not a number')) : E.right(result)
-}

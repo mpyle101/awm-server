@@ -123,7 +123,7 @@ describe('Router utilities tests', () => {
     (pipe(
       get_params(query),
       E.fold(
-        err => () => expect(err.message).toEqual('Not a number'),
+        err => () => expect(err.message).toEqual('Not a number: bad value'),
         params => () => fail(params.limit)
       )
     ))()
@@ -137,7 +137,7 @@ describe('Router utilities tests', () => {
     (pipe(
       get_params(query),
       E.fold(
-        err => () => expect(err.message).toEqual('Not a number'),
+        err => () => expect(err.message).toEqual('Not a number: bad value'),
         params => () => fail(params.offset)
       )
     ))()
@@ -152,7 +152,7 @@ describe('Router utilities tests', () => {
     (pipe(
       get_params(query),
       E.fold(
-        err => () => expect(err.message).toEqual('Not a number'),
+        err => () => expect(err.message).toEqual('Not a number: bad value'),
         params => () => fail(params.offset)
       )
     ))()

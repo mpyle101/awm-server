@@ -1,14 +1,32 @@
-import { Database } from '../db-utils'
+import { addMonths, startOfMonth } from 'date-fns'
+
+import { Database, where } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
 
-export class CyclesController {
-  sql_select_by_id = 'SELECT * FROM awm.cycle WHERE awm.cycle.id = ${cycle_id}'
+import { BaseController } from './base.controller'
 
-  constructor(private db: Database) {}
+export class CyclesController extends BaseController {
 
-  get_all: AsyncArray<any> = () =>
-    this.db.many('SELECT * FROM awm.cycle')
+  constructor(db: Database) {
+    super(db, 'select_cycles.sql')
+  }
 
-  get_by_id = (cycle_id: number): AsyncArray<any> => () =>
-    this.db.any(this.sql_select_by_id, { cycle_id })
+  by_id = (cycle_id: number): AsyncArray<any> => () =>
+    this.query({ where: where({ 'id': cycle_id }) })
+
+  by_month = (date: Date): AsyncArray<any> => () => {
+    const start = startOfMonth(date)
+    const end   = addMonths(start, 1)
+    return this.query({
+      where: where({ 'start_date': { '>=': start, '<': end } })
+    })
+  }
+
+  handle_filter = (filter: Record<string, string>) => {
+    const { name } = filter
+    const clauses = {
+      ...(name ? { name } : {})
+    }
+    return Object.keys(clauses).length ? where(clauses) : ''
+  }
 }
