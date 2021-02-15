@@ -20,7 +20,7 @@ const check_value = <T>(params: Params, key: string, value: T) => {
   )
 }
 
-describe('Router utilities tests', () => {
+describe('Router utilities', () => {
 
   it('should handle undefined query parameters', () => {
     (pipe(

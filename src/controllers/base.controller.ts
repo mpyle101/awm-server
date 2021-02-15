@@ -6,41 +6,38 @@ import { Database, load_sql, where } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
 import { QueryParams } from './types'
 
-export abstract class BaseController {
-  private sql_query: QueryFile
+type handler = (filter: Record<string, string>) => string;
 
-  constructor(
-    private db: Database,
-    sql_filename: string
-  ) {
-    this.sql_query = load_sql(sql_filename)
-  }
+export const create_base_controller = (db: Database, sql_filename: string) => {
+  const sql = load_sql(sql_filename)
 
-  abstract handle_filter(filter: Record<string, string>): string
-
-  query = (filter: {
+  const query = <T=any>(filter: {
     where?: string
     limit?: number
     offset?: number
   }) => {
     const params = {
       where:  filter.where || '',
-      limit:  filter.limit  ? `LIMIT ${filter.limit}` : '',
+      limit:  filter.limit  ? `LIMIT ${filter.limit}`   : '',
       offset: filter.offset ? `OFFSET ${filter.offset}` : ''
     }
-    return this.db.any(this.sql_query, params)
+    return db.any<T>(sql, params)
   }
 
-  by_query = (query: QueryParams): AsyncArray<any> => () =>
-    pipe(
-      {
-        where:  pipe(query.filter, fold(
-          () => undefined,
-          a  => this.handle_filter(a))
-        ),
-        limit:  pipe(query.limit,  toUndefined),
-        offset: pipe(query.offset, toUndefined)
-      },
-      params => this.query(params)
-    )
+  const by_query = <T=any>(filter_handler: handler) =>
+    (params: QueryParams): AsyncArray<T> => () =>
+      pipe(
+        {
+          where: pipe(params.filter, fold(
+            () => undefined,
+            a  => filter_handler(a))
+          ),
+          limit:  pipe(params.limit,  toUndefined),
+          offset: pipe(params.offset, toUndefined)
+        },
+        filter => query<T>(filter)
+      )
+
+  return { by_query, query }
 }
+

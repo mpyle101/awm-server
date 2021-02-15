@@ -3,14 +3,14 @@ import { pipe } from 'fp-ts/lib/pipeable'
 import { fold } from 'fp-ts/lib/Either'
 import { of } from 'fp-ts/lib/Task'
 
-import { SetsController } from '../controllers'
+import { create_sets_controller } from '../controllers'
 import { Database } from '../db-utils'
 import { foldMap, tryCatchError, from_date, from_intstr } from '../fp-utils'
 import { make_error, get_params } from './utils'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
-  const controller = new SetsController(db)
+  const controller = create_sets_controller(db)
 
   router.get('/', (req: Request, res: Response, next: NextFunction) =>
     (pipe(

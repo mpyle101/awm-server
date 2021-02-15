@@ -22,4 +22,4 @@ export const SETS_20210212 = [{
   set_unit: 'KG',
   grp_style: 'STD',
   blk_type: 'MS'
-}]
+}] as const

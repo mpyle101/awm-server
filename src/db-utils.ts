@@ -31,9 +31,9 @@ export const load_sql = (fname: string) => {
 export const where = (values: object, and=true) => {
   const conditions = Object.entries(values).reduce((acc, [key, prop]) => {
     const params = is_simple(prop)
-      ? [pgp.as.format(`$1:name ${prop === null ? 'IS NULL' : '= $2'}`, [key, prop])]
+      ? [pgp.as.format(`$1:alias ${prop === null ? 'IS NULL' : '= $2'}`, [key, prop])]
       : Object.entries(prop).map(([op, value]) =>
-          pgp.as.format(`$1:name ${op} ${value === null ? 'NULL' : '$2'}`, [key, value]))
+          pgp.as.format(`$1:alias ${op} ${value === null ? 'NULL' : '$2'}`, [key, value]))
 
     return [...acc, ...params]
   }, [] as string[])

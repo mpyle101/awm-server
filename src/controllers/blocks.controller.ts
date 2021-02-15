@@ -3,29 +3,29 @@ import { addMonths, startOfMonth } from 'date-fns'
 import { Database, where } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
 
-import { BaseController } from './base.controller'
+import { create_base_controller } from './base.controller'
 
-const EMPTY_STRING = ''
+export const create_controller = (db: Database) => {
+  const controller = create_base_controller(db, 'select_blocks.sql')
 
-export class BlocksController extends BaseController {
+  const by_id = (workout_id: number): AsyncArray<any> => () =>
+    controller.query({ where: where({ 'block.id': workout_id }) })
 
-  constructor(db: Database) {
-    super(db, 'select_blocks.sql')
-  }
+  const by_date = (date: Date): AsyncArray<any> => () =>
+    controller.query({ where: where({ 'workout_date': date }) })
 
-  by_id = (block_id: number): AsyncArray<any> => () =>
-    this.query({ where: where({ 'id': block_id }) })
-
-  by_date = (date: Date): AsyncArray<any> => () =>
-    this.query({ where: where({ 'workout_date': date }) })
-
-  by_month = (date: Date): AsyncArray<any> => () => {
+  const by_month = (date: Date): AsyncArray<any> => () => {
     const start = startOfMonth(date)
     const end   = addMonths(start, 1)
-    return this.query({
+    return controller.query({
       where: where({ 'workout_date': { '>=': start, '<': end } })
     })
   }
 
-  handle_filter = (filter: Record<string, string>) => EMPTY_STRING
+  return {
+    by_id,
+    by_date,
+    by_month,
+    by_query: controller.by_query(() => '')
+  }
 }

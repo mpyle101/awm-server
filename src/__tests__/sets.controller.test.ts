@@ -1,16 +1,17 @@
 import { none, some } from 'fp-ts/lib/Option'
-import { SetsController } from '../controllers'
 import { connect, Database } from '../db-utils'
 
+import { create_sets_controller } from '../controllers'
 import { SETS_20210212 } from './test-data/sets.test-data'
 
-describe('Sets controller tests', () => {
+describe('Sets controller', () => {
   let db: Database
-  let controller: SetsController
+  let set_id: number
+  let controller: ReturnType<typeof create_sets_controller>
 
   beforeAll(async () => {
     ({ db } = await connect('postgres://jester@localhost/awm'))
-    controller = new SetsController(db)
+    controller = create_sets_controller(db)
   })
 
   afterAll(() => db.$pool.end())
@@ -23,9 +24,18 @@ describe('Sets controller tests', () => {
     expect(sets.length).toEqual(19)
     expect(sets[0]).toMatchObject(SETS_20210212[0])
     expect(sets[1]).toMatchObject(SETS_20210212[1])
+
+    set_id = sets[0].set_id
   })
 
-  it('should by query', async () => {
+  it('should get by id', async () => {
+    const sets = await controller.by_id(set_id)()
+
+    expect(sets.length).toEqual(1)
+    expect(sets[0]).toMatchObject(SETS_20210212[0])
+  })
+
+  it('should get by query', async () => {
     const sets = await controller.by_query({
       limit: none,
       offset: none,

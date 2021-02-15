@@ -7,11 +7,11 @@ import { Database } from '../db-utils'
 import { foldMap, from_date, from_intstr, tryCatchError } from '../fp-utils'
 import { make_error, get_params } from './utils'
 
-import { WorkoutsController } from '../controllers'
+import { create_workouts_controller } from '../controllers'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
-  const controller = new WorkoutsController(db)
+  const controller = create_workouts_controller(db)
 
   router.get('/', (req: Request, res: Response, next: NextFunction) =>
     (pipe(

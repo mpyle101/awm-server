@@ -5,3 +5,40 @@ export type QueryParams = {
   offset: Option<number>
   filter: Option<Record<string, string>>
 }
+
+export type CycleRecord = {
+  id: number
+  name: string
+  start_date: string
+  end_data: string
+}
+
+export type ExerciseRecord = {
+  key: string
+  name: string
+  unit: string
+}
+
+export type SetRecord = {
+  date: string
+  wrk_id: number
+  blk_id: number
+  set_id: number
+  wrk_no: number
+  blk_no: number
+  grp_no: number
+  set_no: number
+  set_type: string
+  set_notes: string
+  set_exercise: string
+  set_weight: number
+  set_duration: object
+  set_distance: string
+  grp_style: string
+  blk_type: string
+  blk_notes: string
+  blk_style: string
+  blk_duration: object
+  blk_exercise: string
+  blk_distance: string
+}
