@@ -45,7 +45,7 @@ describe('Workouts repository', () => {
   })
 
   it('should get by id', async () => {
-    const recs = await repository.by_id(workout_id)
+    const recs = await repository.by_ids([workout_id])
 
     expect(recs.length).toEqual(1)
     expect(recs[0]).toMatchObject(WORKOUT_20210214)

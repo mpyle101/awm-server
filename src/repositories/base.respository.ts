@@ -38,6 +38,9 @@ export const create_base_repository = (db: Database, sql_filename: string) => {
         filter => query<T>(filter)
       )
 
-  return { by_query, query }
+  return {
+    by_query,
+    query
+  }
 }
 

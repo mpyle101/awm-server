@@ -7,8 +7,8 @@ import { SetRecord } from './types'
 export const create_repository = (db: Database) => {
   const repository = create_base_repository(db, 'select_sets.sql')
 
-  const by_id = (set_id: number): Promise<SetRecord[]> =>
-    repository.query({ where: where({ 'set.id': set_id }) })
+  const by_ids = (ids: number[]): Promise<SetRecord[]> =>
+    repository.query({ where: where({ 'set.id': { 'IN' : ids } }) })
 
   const by_date = (date: Date): Promise<SetRecord[]> =>
     repository.query({ where: where({ 'workout_date': date }) })
@@ -27,7 +27,7 @@ export const create_repository = (db: Database) => {
   }
 
   return {
-    by_id,
+    by_ids,
     by_date,
     by_month,
     by_query: repository.by_query<SetRecord>(filter)

@@ -28,14 +28,26 @@ export const load_sql = (fname: string) => {
   return new pgp.QueryFile(path, { minify: true })
 }
 
+
 export const where = (values: object, and=true) => {
   const conditions = Object.entries(values).reduce((acc, [key, prop]) => {
-    const params = is_simple(prop)
-      ? [pgp.as.format(`$1:alias ${prop === null ? 'IS NULL' : '= $2'}`, [key, prop])]
-      : Object.entries(prop).map(([op, value]) =>
-          pgp.as.format(`$1:alias ${op} ${value === null ? 'NULL' : '$2'}`, [key, value]))
+    let params: string[]
 
-    return [...acc, ...params]
+    if (is_simple(prop)) {
+      params = [format(`$1:alias ${prop === null ? 'IS NULL' : '= $2'}`, [key, prop])]
+    } else if (Array.isArray(prop)) {
+      params = [format('$1:alias IN ($2:list)', [key, prop])]
+    } else {
+      params = Object.entries(prop).map(([op, value]) => {
+        const fmt = (op === 'IN' || op === 'NOT IN') ? '($2:list)' : '$2'
+        return format(
+          `$1:alias ${op} ${value === null ? 'NULL' : fmt}`,
+          [key, value]
+        )
+      })
+    }
+
+    return acc.concat(params)
   }, [] as string[])
 
   return 'WHERE ' + conditions.join(and ? ' AND ' : ' OR ')

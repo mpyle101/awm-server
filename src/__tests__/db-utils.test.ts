@@ -32,6 +32,16 @@ describe('WHERE clause generation', () => {
     expect(clause).toEqual(`WHERE col IS NULL`)
   })
 
+  it('should handle simple number lists', () => {
+    const clause = where({ 'col': [1, 2, 3] }, false)
+    expect(clause).toEqual(`WHERE col IN (1,2,3)`)
+  })
+
+  it('should handle simple string lists', () => {
+    const clause = where({ 'col': ['a', 'b', 'c'] }, false)
+    expect(clause).toEqual(`WHERE col IN ('a','b','c')`)
+  })
+
   it('should handle NOT null', () => {
     const clause = where({ 'col': { 'IS NOT': null } })
     expect(clause).toEqual(`WHERE col IS NOT NULL`)
@@ -40,6 +50,21 @@ describe('WHERE clause generation', () => {
   it('should handle objects specifying operations', () => {
     const clause = where({ 'col': { '>=': 5 } })
     expect(clause).toEqual(`WHERE col >= 5`)
+  })
+
+  it('should handle number lists', () => {
+    const clause = where({ 'col': { 'IN': [1, 2, 3] } }, false)
+    expect(clause).toEqual(`WHERE col IN (1,2,3)`)
+  })
+
+  it('should handle NOT IN a list', () => {
+    const clause = where({ 'col': { 'NOT IN': ['a', 'b', 'c'] } }, false)
+    expect(clause).toEqual(`WHERE col NOT IN ('a','b','c')`)
+  })
+
+  it('should handle string lists', () => {
+    const clause = where({ 'col': { 'IN': ['a', 'b', 'c'] } }, false)
+    expect(clause).toEqual(`WHERE col IN ('a','b','c')`)
   })
 
   it('should handle multiple AND operations', () => {

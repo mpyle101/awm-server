@@ -35,7 +35,7 @@ describe('Cycles repository', () => {
   })
 
   it('should get by id', async () => {
-    const recs = await repository.by_id(cycle_id)
+    const recs = await repository.by_ids([cycle_id])
 
     expect(recs.length).toEqual(1)
     expect(recs[0]).toMatchObject(SL1)

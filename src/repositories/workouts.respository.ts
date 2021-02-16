@@ -6,8 +6,8 @@ import { create_base_repository } from './base.respository'
 export const create_repository = (db: Database) => {
   const repository = create_base_repository(db, 'select_workouts.sql')
 
-  const by_id = (workout_id: number): Promise<any[]> =>
-    repository.query({ where: where({ 'workout.id': workout_id }) })
+  const by_ids = (ids: number[]): Promise<any[]> =>
+    repository.query({ where: where({ 'workout.id': { 'IN' : ids } }) })
 
   const by_date = (date: Date): Promise<any[]> =>
     repository.query({ where: where({ 'workout_date': date }) })
@@ -21,7 +21,7 @@ export const create_repository = (db: Database) => {
   }
 
   return {
-    by_id,
+    by_ids,
     by_date,
     by_month,
     by_query: repository.by_query(() => '')

@@ -1,5 +1,3 @@
-import { addMonths, startOfMonth } from 'date-fns'
-
 import { Database, where } from '../db-utils'
 import { AsyncArray } from '../fp-utils'
 import {
@@ -12,7 +10,7 @@ export const create_controller = (db: Database) => {
   const repository = create_sets_repository(db)
 
   const by_id = (set_id: number): AsyncArray<SetRecord> =>
-    () => repository.by_id(set_id)
+    () => repository.by_ids([set_id])
 
   const by_date = (date: Date): AsyncArray<SetRecord> =>
     () => repository.by_date(date)

@@ -29,7 +29,7 @@ describe('Sets repository', () => {
   })
 
   it('should get by id', async () => {
-    const recs = await repository.by_id(set_id)
+    const recs = await repository.by_ids([set_id])
 
     expect(recs.length).toEqual(1)
     expect(recs[0]).toMatchObject(SETS_20210212[0])
