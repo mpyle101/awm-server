@@ -8,7 +8,7 @@ import { pipe } from 'fp-ts/lib/pipeable'
 import { Lazy } from 'fp-ts/lib/function'
 
 import { Database, connect } from './db-utils'
-import { foldMap, tryCatchError } from './fp-utils'
+import { foldMap, from_thunk } from './fp-utils'
 
 import {
   create_blocks_router,
@@ -49,7 +49,7 @@ const url  = process.env.AWM_DB || 'postgres://jester@localhost/awm';
 (async () => {
   await (pipe(
     () => connect(url),
-    result => tryCatchError(result),
+    result => from_thunk(result),
     foldMap(
       error => console.log(`Failed to connect to database: ${error}`),
       ({ db, version }) => {

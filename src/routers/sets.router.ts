@@ -5,7 +5,7 @@ import { of } from 'fp-ts/lib/Task'
 
 import { create_sets_controller } from '../controllers'
 import { Database } from '../db-utils'
-import { foldMap, tryCatchError, from_date, from_intstr } from '../fp-utils'
+import { foldMap, from_thunk, from_date, from_intstr } from '../fp-utils'
 import { make_error, get_params } from './utils'
 
 export default (db: Database) => {
@@ -19,7 +19,7 @@ export default (db: Database) => {
         error  => of(next(make_error(400, error))),
         params => pipe(
           controller.by_query(params),
-          result => tryCatchError(result),
+          result => from_thunk(result),
           foldMap(
             error  => next(make_error(500, error)),
             result => res.json(result)
@@ -36,7 +36,7 @@ export default (db: Database) => {
         error => of(next(make_error(400, error))),
         set_id => pipe(
           controller.by_id(set_id),
-          result => tryCatchError(result),
+          result => from_thunk(result),
           foldMap(
             error  => next(make_error(500, error)),
             result => result.length ? res.json(result) : next(make_error(404))
@@ -53,7 +53,7 @@ export default (db: Database) => {
         error => of(next(make_error(400, error))),
         date  => pipe(
           controller.by_month(date),
-          result => tryCatchError(result),
+          result => from_thunk(result),
           foldMap(
             error  => next(make_error(500, error)),
             result => res.json(result)
@@ -70,7 +70,7 @@ export default (db: Database) => {
         error => of(next(make_error(400, error))),
         date  => pipe(
           controller.by_date(date),
-          result => tryCatchError(result),
+          result => from_thunk(result),
           foldMap(
             error  => next(make_error(500, error)),
             result => res.json(result)

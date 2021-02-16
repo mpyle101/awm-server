@@ -5,7 +5,7 @@ import { sequenceS } from 'fp-ts/lib/Apply'
 import { either, right } from 'fp-ts/lib/Either'
 import { Option, fold, fromNullable, some, none } from 'fp-ts/lib/Option'
 
-import { from_numstr, from_record } from '../fp-utils'
+import { from_numstr, from_object } from '../fp-utils'
 
 export const make_error = (status: number, error?: Error) => ({
   status, error, message: STATUS_CODES[status]
@@ -18,7 +18,7 @@ export const get_params = (query = {}) => {
     sequenceS(either)({
       limit:  from_numstr(limit),
       offset: from_numstr(offset),
-      filter: from_record(rest)
+      filter: from_object(rest)
     })
   )
 }

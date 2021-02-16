@@ -10,13 +10,14 @@ import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
 
 export type AsyncArray<A> = Lazy<Promise<A[]>>
+export type AsyncResult<A> = Lazy<Promise<A>>
 
 export const foldMap = <E, A, B>(
-  onLeft: (e: E) => B,
+  onLeft:  (e: E) => B,
   onRight: (a: A) => B
 ): (ma: TaskEither<E, A>) => Task<B> => T.map(E.fold(onLeft, onRight))
 
-export const tryCatchError = <E, A, B>(f: Lazy<Promise<A>>) => TE.tryCatch(f, E.toError)
+export const from_thunk = <A>(f: AsyncResult<A>) => TE.tryCatch(f, E.toError)
 
 export const from_date = ({ year, month, day='01' }) =>
   pipe(
@@ -47,7 +48,7 @@ export const from_intstr = (s: string) => {
     : E.right(result)
 }
 
-export const from_record = (obj: { [x: string]: string }) =>
+export const from_object = (obj: { [x: string]: string }) =>
   pipe(
     Object.keys(obj).length ? O.some(obj) : O.none,
     O.fold(
