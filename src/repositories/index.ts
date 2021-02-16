@@ -6,7 +6,9 @@ export { create_repository as create_workouts_repository } from './workouts.resp
 
 export {
   QueryParams,
+  BlockRecord,
   CycleRecord,
   ExerciseRecord,
-  SetRecord
+  SetRecord,
+  WorkoutRecord
 } from './types'

@@ -1,21 +1,15 @@
 import { join, resolve } from 'path'
 import { IDatabase } from 'pg-promise'
-import { pipe } from 'fp-ts/lib/pipeable'
-import { sequenceS } from 'fp-ts/lib/Apply'
-
-import { AsyncArray } from './fp-utils'
 
 import pg_promise = require('pg-promise')
 const pgp = pg_promise({ capSQL: true })
-
-const create_db = (url: string) => pgp(url)
 
 export type Database = IDatabase<any>
 export const format = pgp.as.format
 
 export const connect = async (url: string) => {
-  /** Make a test connection and release it */
-  const db = create_db(url)
+  /** Make a test connection and release it **/
+  const db  = pgp(url)
   const dbc = await db.connect()
   const version = dbc.client.serverVersion
   dbc.done()
@@ -27,7 +21,6 @@ export const load_sql = (fname: string) => {
   const path = resolve(join('sql', fname))
   return new pgp.QueryFile(path, { minify: true })
 }
-
 
 export const where = (values: object, and=true) => {
   const conditions = Object.entries(values).reduce((acc, [key, prop]) => {

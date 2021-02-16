@@ -18,7 +18,7 @@ export const create_controller = (db: Database) => {
   const by_month = (date: Date): AsyncArray<SetRecord> =>
     () => repository.by_month(date)
 
-  const by_query = (params: QueryParams): AsyncArray<any> =>
+  const by_query = (params: QueryParams): AsyncArray<SetRecord> =>
     () => repository.by_query(params)
 
   return {

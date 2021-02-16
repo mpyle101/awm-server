@@ -17,8 +17,10 @@ export const create_repository = (db: Database) => {
     return Object.keys(clauses).length ? where(clauses) : ''
   }
 
+  const by_query = repository.by_query<ExerciseRecord>(filter)
+
   return {
     by_key,
-    by_query: repository.by_query<ExerciseRecord>(filter)
+    by_query
   }
 }

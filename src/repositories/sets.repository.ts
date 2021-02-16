@@ -25,12 +25,14 @@ export const create_repository = (db: Database) => {
     const date = new Date(2021, 1, 12);
     return where({ 'workout_date': date })
   }
+  
+  const by_query = repository.by_query<SetRecord>(filter)
 
   return {
     by_ids,
     by_date,
     by_month,
-    by_query: repository.by_query<SetRecord>(filter)
+    by_query
   }
 }
 

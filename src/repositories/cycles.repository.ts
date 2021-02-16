@@ -20,15 +20,15 @@ export const create_repository = (db: Database) => {
 
   const filter = (filter: Record<string, string>) => {
     const { name } = filter
-    const clauses = {
-      ...(name ? { name } : {})
-    }
+    const clauses = { ...(name ? { name } : {}) }
     return Object.keys(clauses).length ? where(clauses) : ''
   }
+
+  const by_query = repository.by_query<CycleRecord>(filter)
 
   return {
     by_ids,
     by_month,
-    by_query: repository.by_query<CycleRecord>(filter)
+    by_query
   }
 }
