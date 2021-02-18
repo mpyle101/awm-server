@@ -1,6 +1,8 @@
-import { none, some } from 'fp-ts/lib/Option'
-import { connect, Database } from '../db-utils'
+import { pipe } from 'fp-ts/lib/pipeable'
+import { getOrElseW, some } from 'fp-ts/lib/Option'
+import { getOrElse } from 'fp-ts/lib/TaskEither'
 
+import { connect, Database } from '../db-utils'
 import { create_sets_repository } from '../repositories'
 import { SETS_20210212 } from './test-data/sets.test-data'
 
@@ -18,8 +20,11 @@ describe('Sets repository', () => {
 
   it('should get by date', async () => {
     // February 12th, 2021 (month is an index...sigh)
-    const date = new Date(2021, 1, 12);
-    const recs = await repository.by_date(date)
+    const recs = await pipe(
+      new Date(2021, 1, 12),
+      repository.by_date,
+      getOrElse(fail)
+    )()
 
     expect(recs.length).toEqual(19)
     expect(recs[0]).toMatchObject(SETS_20210212[0])
@@ -29,21 +34,38 @@ describe('Sets repository', () => {
   })
 
   it('should get by id', async () => {
-    const recs = await repository.by_ids([set_id])
+    const rec = pipe(
+      await pipe(
+        set_id,
+        repository.by_id,
+        getOrElse(fail),
+      )(),
+      getOrElseW(() => fail(`${set_id} not found`))
+    )
+
+    expect(rec).toBeDefined()
+    expect(rec).toMatchObject(SETS_20210212[0])
+  })
+
+  it('should get by ids', async () => {
+    const recs = await pipe(
+      [set_id],
+      repository.by_ids,
+      getOrElse(fail)
+    )()
 
     expect(recs.length).toEqual(1)
     expect(recs[0]).toMatchObject(SETS_20210212[0])
   })
 
   it('should get by query', async () => {
-    const recs = await repository.by_query({
-      limit: none,
-      offset: none,
-      filter: some({ bob: 'true' })
-    })
+    const recs = await pipe(
+      some({ 'set.id': set_id }),
+      repository.by_query,
+      getOrElse(fail)
+    )()
 
-    expect(recs.length).toEqual(19)
+    expect(recs.length).toEqual(1)
     expect(recs[0]).toMatchObject(SETS_20210212[0])
-    expect(recs[1]).toMatchObject(SETS_20210212[1])
   })
 })

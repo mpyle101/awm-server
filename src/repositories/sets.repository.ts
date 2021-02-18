@@ -1,39 +1,34 @@
 import { addMonths, startOfMonth } from 'date-fns'
+import { some } from 'fp-ts/lib/Option'
 
-import { Database, where } from '../db-utils'
-import { create_base_repository } from './base.respository'
+import {
+  Database,
+  get_any,
+  get_one,
+  load_sql,
+  where
+} from '../db-utils'
 import { SetRecord } from './types'
 
 export const create_repository = (db: Database) => {
-  const repository = create_base_repository(db, 'select_sets.sql')
+  const sql = load_sql('select_sets.sql')
+  const one = get_one<SetRecord>(db, sql)
+  const any = get_any<SetRecord>(db, sql, filter => where(filter))
 
-  const by_ids = (ids: number[]): Promise<SetRecord[]> =>
-    repository.query({ where: where({ 'set.id': { 'IN' : ids } }) })
-
-  const by_date = (date: Date): Promise<SetRecord[]> =>
-    repository.query({ where: where({ 'workout_date': date }) })
-
-  const by_month = (date: Date): Promise<SetRecord[]> => {
+  const by_id    = (id: number) => one(where({ 'set.id': id }))
+  const by_ids   = (ids: number[]) => any(some({ 'set.id': { 'IN':ids } })) 
+  const by_date  = (date: Date) => any(some({ 'workout_date': date }))
+  const by_month = (date: Date) => {
     const start = startOfMonth(date)
     const end   = addMonths(start, 1)
-    return repository.query({
-      where: where({ 'workout_date': { '>=': start, '<': end } })
-    })
+    return any(some({ 'workout_date': { '>=': start, '<': end } }))
   }
-
-  const filter = (filter: Record<string, string>) => {
-    const date = new Date(2021, 1, 12);
-    return where({ 'workout_date': date })
-  }
-  
-  const by_query = repository.by_query<SetRecord>(filter)
 
   return {
+    by_id,
     by_ids,
     by_date,
     by_month,
-    by_query
+    by_query: any
   }
 }
-
-

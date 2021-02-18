@@ -1,12 +1,15 @@
-import { Database, where } from '../db-utils'
-import { create_base_repository } from './base.respository'
+import { some } from 'fp-ts/lib/Option'
+import {
+  Database,
+  get_any,
+  get_one,
+  load_sql,
+  where
+} from '../db-utils'
 import { ExerciseRecord } from './types'
 
 export const create_repository = (db: Database) => {
-  const repository = create_base_repository(db, 'select_exercises.sql')
-
-  const by_key = (key: string): Promise<ExerciseRecord[]> =>
-    repository.query({ where: where({ key }) })
+  const sql = load_sql('select_exercises.sql')
 
   const filter = (filter: Record<string, string>) => {
     const { key, name } = filter
@@ -17,10 +20,10 @@ export const create_repository = (db: Database) => {
     return Object.keys(clauses).length ? where(clauses) : ''
   }
 
-  const by_query = repository.by_query<ExerciseRecord>(filter)
+  const one = get_one<ExerciseRecord>(db, sql)
 
   return {
-    by_key,
-    by_query
+    by_key: (key: string) => one(where({ key })),
+    by_query: get_any<ExerciseRecord>(db, sql, filter)
   }
 }

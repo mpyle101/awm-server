@@ -1,6 +1,8 @@
-import { none, some } from 'fp-ts/lib/Option'
-import { connect, Database } from '../db-utils'
+import { pipe } from 'fp-ts/lib/pipeable'
+import { getOrElseW, some } from 'fp-ts/lib/Option'
+import { getOrElse } from 'fp-ts/lib/TaskEither'
 
+import { connect, Database } from '../db-utils'
 import { create_workouts_repository } from '../repositories'
 
 const WORKOUT_20210214 = {
@@ -35,8 +37,11 @@ describe('Workouts repository', () => {
 
   it('should get by date', async () => {
     // February 14th, 2021 (month is an index...sigh)
-    const date = new Date(2021, 1, 14);
-    const recs = await repository.by_date(date)
+    const recs = await pipe(
+      new Date(2021, 1, 14),
+      repository.by_date,
+      getOrElse(fail)
+    )()
 
     expect(recs.length).toEqual(1)
     expect(recs[0]).toMatchObject(WORKOUT_20210214)
@@ -45,9 +50,16 @@ describe('Workouts repository', () => {
   })
 
   it('should get by id', async () => {
-    const recs = await repository.by_ids([workout_id])
+    const rec = pipe(
+      await pipe(
+        workout_id,
+        repository.by_id,
+        getOrElse(fail),
+      )(),
+      getOrElseW(() => fail(`${workout_id} not found`))
+    )
 
-    expect(recs.length).toEqual(1)
-    expect(recs[0]).toMatchObject(WORKOUT_20210214)
+    expect(rec).toBeDefined()
+    expect(rec).toMatchObject(WORKOUT_20210214)
   })
 })

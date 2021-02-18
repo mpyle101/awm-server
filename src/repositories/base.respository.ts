@@ -39,6 +39,8 @@ export const create_base_repository = (db: Database, sql_filename: string) => {
       )
 
   return {
+    db,
+    sql,
     by_query,
     query
   }

@@ -1,6 +1,8 @@
-import { none, some } from 'fp-ts/lib/Option'
-import { connect, Database } from '../db-utils'
+import { pipe } from 'fp-ts/lib/pipeable'
+import { getOrElseW, some } from 'fp-ts/lib/Option'
+import { getOrElse } from 'fp-ts/lib/TaskEither'
 
+import { connect, Database } from '../db-utils'
 import { create_exercises_repository } from '../repositories'
 
 const OHP = {
@@ -21,18 +23,25 @@ describe('Exercises repository', () => {
   afterAll(() => db.$pool.end())
 
   it('should get by key', async () => {
-    const recs = await repository.by_key('OHP')
+    const rec = pipe(
+      await pipe(
+        'OHP',
+        repository.by_key,
+        getOrElse(fail),
+      )(),
+      getOrElseW(() => fail(`OHP not found`))
+    )
 
-    expect(recs.length).toEqual(1)
-    expect(recs[0]).toMatchObject(OHP)
+    expect(rec).toBeDefined()
+    expect(rec).toMatchObject(OHP)
   })
 
   it('should get by query', async () => {
-    const recs = await repository.by_query({
-      limit: none,
-      offset: none,
-      filter: some({ name: 'Overhead Press' })
-    })
+    const recs = await pipe(
+      some({ name: 'Overhead Press' }),
+      repository.by_query,
+      getOrElse(fail)
+    )()
 
     expect(recs.length).toEqual(1)
     expect(recs[0]).toMatchObject(OHP)

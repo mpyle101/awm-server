@@ -1,6 +1,8 @@
-import { none, some } from 'fp-ts/lib/Option'
-import { connect, Database } from '../db-utils'
+import { pipe } from 'fp-ts/lib/pipeable'
+import { getOrElseW, some } from 'fp-ts/lib/Option'
+import { getOrElse } from 'fp-ts/lib/TaskEither'
 
+import { connect, Database } from '../db-utils'
 import { create_cycles_repository } from '../repositories'
 
 const SL1 = {
@@ -22,11 +24,11 @@ describe('Cycles repository', () => {
   afterAll(() => db.$pool.end())
 
   it('should get by query', async () => {
-    const recs = await repository.by_query({
-      limit: none,
-      offset: none,
-      filter: some({ name: 'SL 1' })
-    })
+    const recs = await pipe(
+      some({ name: 'SL 1' }),
+      repository.by_query,
+      getOrElse(fail)
+    )()
 
     expect(recs.length).toEqual(1)
     expect(recs[0]).toMatchObject(SL1)
@@ -35,9 +37,16 @@ describe('Cycles repository', () => {
   })
 
   it('should get by id', async () => {
-    const recs = await repository.by_ids([cycle_id])
+    const rec = pipe(
+      await pipe(
+        cycle_id,
+        repository.by_id,
+        getOrElse(fail),
+      )(),
+      getOrElseW(() => fail(`${cycle_id} not found`))
+    )
 
-    expect(recs.length).toEqual(1)
-    expect(recs[0]).toMatchObject(SL1)
+    expect(rec).toBeDefined()
+    expect(rec).toMatchObject(SL1)
   })
 })

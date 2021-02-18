@@ -1,26 +1,14 @@
-import { Database, where } from '../db-utils'
-import { AsyncArray } from '../fp-utils'
+import { Database } from '../db-utils'
 import { QueryParams, create_workouts_repository } from '../repositories'
 
 export const create_controller = (db: Database) => {
   const repository = create_workouts_repository(db)
 
-  const by_id = (workout_id: number): AsyncArray<any> =>
-    () => repository.by_ids([workout_id])
-
-  const by_date = (date: Date): AsyncArray<any> =>
-    () => repository.by_date(date)
-
-  const by_month = (date: Date): AsyncArray<any> =>
-    () => repository.by_month(date)
-
-  const by_query = (params: QueryParams): AsyncArray<any> =>
-    () => repository.by_query(params)
-
   return {
-    by_id,
-    by_date,
-    by_month,
-    by_query
+    by_id:    (set_id: number) => repository.by_id(set_id),
+    by_date:  (date: Date) => repository.by_date(date),
+    by_month: (date: Date) => repository.by_month(date),
+    by_query: (params: QueryParams) =>
+      repository.by_query(params.filter, params.limit, params.offset)
   }
 }
