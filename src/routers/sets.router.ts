@@ -5,6 +5,7 @@ import { pipe } from 'fp-ts/pipeable'
 import * as E from 'fp-ts/Either'
 import * as O from 'fp-ts/Option'
 import * as T from 'fp-ts/Task'
+import * as TE from 'fp-ts/TaskEither'
 
 import { create_sets_controller } from '../controllers'
 import { Database } from '../utilities/db-utils'
@@ -26,7 +27,7 @@ export default (db: Database) => {
           foldMap(
             error  => next(make_error(500, error)),
             result => res.json(result)
-          )
+          ),
         )
       )
     ))()

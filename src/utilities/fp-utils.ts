@@ -1,6 +1,6 @@
 import { pipe } from 'fp-ts/pipeable'
+import { flow, Lazy } from 'fp-ts/function'
 import { sequenceS } from 'fp-ts/Apply'
-import { Lazy } from 'fp-ts/function'
 import { Task } from 'fp-ts/Task'
 import { TaskEither } from 'fp-ts/TaskEither'
 
@@ -12,10 +12,7 @@ import * as TE from 'fp-ts/TaskEither'
 export type AsyncArray<A> = Lazy<Promise<A[]>>
 export type AsyncResult<A> = Lazy<Promise<A>>
 
-export const foldMap = <E, A, B>(
-  onLeft:  (e: E) => B,
-  onRight: (a: A) => B
-): (ma: TaskEither<E, A>) => Task<B> => T.map(E.fold(onLeft, onRight))
+export const foldMap = flow(E.fold, T.map)
 
 export const from_thunk = <A>(f: AsyncResult<A>) => TE.tryCatch(f, E.toError)
 
