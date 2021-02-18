@@ -1,14 +1,14 @@
 import express, { Request, Response, NextFunction as NF } from 'express'
 import { flow } from 'fp-ts/function'
-import { pipe } from 'fp-ts/lib/pipeable'
+import { pipe } from 'fp-ts/pipeable'
 
 import * as E from 'fp-ts/Either'
 import * as O from 'fp-ts/Option'
 import * as T from 'fp-ts/Task'
 
-import { Database } from '../db-utils'
-import { foldMap } from '../fp-utils'
-import { get_params, make_error } from './utils'
+import { Database } from '../utilities/db-utils'
+import { foldMap } from '../utilities/fp-utils'
+import { parse_query, make_error } from '../utilities/web-utils'
 
 import { create_exercises_controller } from '../controllers'
 
@@ -19,7 +19,7 @@ export default (db: Database) => {
 
   router.get('/', (req: Request, res: Response, next: NF) =>
     (pipe(
-      get_params(req.query),
+      parse_query(req.query),
       E.fold(
         error => T.of(next(make_error(400, error))),
         flow(

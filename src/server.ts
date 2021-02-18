@@ -7,8 +7,8 @@ import express, { Request, Response, NextFunction } from 'express'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { Lazy } from 'fp-ts/lib/function'
 
-import { Database, connect } from './db-utils'
-import { foldMap, from_thunk } from './fp-utils'
+import { Database, connect } from './utilities/db-utils'
+import { foldMap, from_thunk } from './utilities/fp-utils'
 
 import {
   create_blocks_router,

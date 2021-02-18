@@ -1,11 +1,11 @@
-import { some } from 'fp-ts/lib/Option'
+import { some } from 'fp-ts/Option'
 import {
   Database,
   get_any,
   get_one,
   load_sql,
   where
-} from '../db-utils'
+} from '../utilities/db-utils'
 import { ExerciseRecord } from './types'
 
 export const create_repository = (db: Database) => {

@@ -1,5 +1,5 @@
 import { addMonths, startOfMonth } from 'date-fns'
-import { some } from 'fp-ts/lib/Option'
+import { some } from 'fp-ts/Option'
 
 import {
   Database,
@@ -7,7 +7,7 @@ import {
   get_one,
   load_sql,
   where
-} from '../db-utils'
+} from '../utilities/db-utils'
 import { CycleRecord } from './types'
 
 export const create_repository = (db: Database) => {
@@ -25,7 +25,7 @@ export const create_repository = (db: Database) => {
   const by_ids   = (ids: number[]) => any(some({ 'cycle.id': { 'IN': ids } }))
   const by_month = (date: Date) => {
     const start = startOfMonth(date)
-    const end = addMonths(start, 1)
+    const end   = addMonths(start, 1)
     return any(some({ 'workout_date': { '>=': start, '<': end } }))
   }
 

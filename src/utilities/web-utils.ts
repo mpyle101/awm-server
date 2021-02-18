@@ -1,17 +1,15 @@
 import { STATUS_CODES } from 'http'
-import { ParsedQs } from 'qs'
-import { pipe } from 'fp-ts/lib/pipeable'
-import { sequenceS } from 'fp-ts/lib/Apply'
-import { either, right } from 'fp-ts/lib/Either'
-import { Option, fold, fromNullable, some, none } from 'fp-ts/lib/Option'
+import { pipe } from 'fp-ts/pipeable'
+import { sequenceS } from 'fp-ts/Apply'
+import { either } from 'fp-ts/Either'
 
-import { from_numstr, from_object } from '../fp-utils'
+import { from_numstr, from_object } from './fp-utils'
 
 export const make_error = (status: number, error?: Error) => ({
   status, error, message: STATUS_CODES[status]
 })
 
-export const get_params = (query = {}) => {
+export const parse_query = (query = {}) => {
   const { limit, offset, ...rest } = (query as any)
 
   return pipe(

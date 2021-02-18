@@ -7,9 +7,9 @@ import * as O from 'fp-ts/Option'
 import * as T from 'fp-ts/Task'
 
 import { create_sets_controller } from '../controllers'
-import { Database } from '../db-utils'
-import { foldMap, from_date, from_intstr } from '../fp-utils'
-import { make_error, get_params } from './utils'
+import { Database } from '../utilities/db-utils'
+import { foldMap, from_date, from_intstr } from '../utilities/fp-utils'
+import { make_error, parse_query } from '../utilities/web-utils'
 
 export default (db: Database) => {
   const router = express.Router({ strict: true })
@@ -18,7 +18,7 @@ export default (db: Database) => {
 
   router.get('/', (req: Request, res: Response, next: NF) =>
     (pipe(
-      get_params(req.query),
+      parse_query(req.query),
       E.fold(
         error => T.of(next(make_error(400, error))),
         flow(

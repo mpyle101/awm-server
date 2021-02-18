@@ -2,8 +2,9 @@ import { pipe } from 'fp-ts/lib/pipeable'
 import { getOrElseW, some } from 'fp-ts/lib/Option'
 import { getOrElse } from 'fp-ts/lib/TaskEither'
 
-import { connect, Database } from '../db-utils'
 import { create_exercises_repository } from '../repositories'
+import { connect, Database } from '../utilities/db-utils'
+import { rethrow } from '../utilities/test-utils'
 
 const OHP = {
   key: 'OHP',
@@ -27,7 +28,7 @@ describe('Exercises repository', () => {
       await pipe(
         'OHP',
         repository.by_key,
-        getOrElse(fail),
+        getOrElse(rethrow),
       )(),
       getOrElseW(() => fail(`OHP not found`))
     )
@@ -40,7 +41,7 @@ describe('Exercises repository', () => {
     const recs = await pipe(
       some({ name: 'Overhead Press' }),
       repository.by_query,
-      getOrElse(fail)
+      getOrElse(rethrow)
     )()
 
     expect(recs.length).toEqual(1)

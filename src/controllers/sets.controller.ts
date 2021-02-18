@@ -1,4 +1,4 @@
-import { Database } from '../db-utils'
+import { Database } from '../utilities/db-utils'
 import { QueryParams, create_sets_repository } from '../repositories'
 
 export const create_controller = (db: Database) => {

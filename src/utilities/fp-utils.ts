@@ -1,13 +1,13 @@
-import { pipe } from 'fp-ts/lib/pipeable'
-import { sequenceS } from 'fp-ts/lib/Apply'
-import { Lazy } from 'fp-ts/lib/function'
-import { Task } from 'fp-ts/lib/Task'
-import { TaskEither } from 'fp-ts/lib/TaskEither'
+import { pipe } from 'fp-ts/pipeable'
+import { sequenceS } from 'fp-ts/Apply'
+import { Lazy } from 'fp-ts/function'
+import { Task } from 'fp-ts/Task'
+import { TaskEither } from 'fp-ts/TaskEither'
 
-import * as E from 'fp-ts/lib/Either'
-import * as O from 'fp-ts/lib/Option'
-import * as T from 'fp-ts/lib/Task'
-import * as TE from 'fp-ts/lib/TaskEither'
+import * as E from 'fp-ts/Either'
+import * as O from 'fp-ts/Option'
+import * as T from 'fp-ts/Task'
+import * as TE from 'fp-ts/TaskEither'
 
 export type AsyncArray<A> = Lazy<Promise<A[]>>
 export type AsyncResult<A> = Lazy<Promise<A>>

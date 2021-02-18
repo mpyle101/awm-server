@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import { where } from '../db-utils'
+import { where } from '../utilities/db-utils'
 
 const POSTGRES_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
 

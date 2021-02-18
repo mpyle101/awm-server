@@ -2,9 +2,11 @@ import { pipe } from 'fp-ts/lib/pipeable'
 import { getOrElseW, some } from 'fp-ts/lib/Option'
 import { getOrElse } from 'fp-ts/lib/TaskEither'
 
-import { connect, Database } from '../db-utils'
 import { create_sets_repository } from '../repositories'
+import { connect, Database } from '../utilities/db-utils'
+import { rethrow, throw_error } from '../utilities/test-utils'
 import { SETS_20210212 } from './test-data/sets.test-data'
+
 
 describe('Sets repository', () => {
   let db: Database
@@ -23,7 +25,7 @@ describe('Sets repository', () => {
     const recs = await pipe(
       new Date(2021, 1, 12),
       repository.by_date,
-      getOrElse(fail)
+      getOrElse(rethrow)
     )()
 
     expect(recs.length).toEqual(19)
@@ -38,9 +40,9 @@ describe('Sets repository', () => {
       await pipe(
         set_id,
         repository.by_id,
-        getOrElse(fail),
+        getOrElse(rethrow),
       )(),
-      getOrElseW(() => fail(`${set_id} not found`))
+      getOrElseW(throw_error(`${set_id} not found`))
     )
 
     expect(rec).toBeDefined()
@@ -51,7 +53,7 @@ describe('Sets repository', () => {
     const recs = await pipe(
       [set_id],
       repository.by_ids,
-      getOrElse(fail)
+      getOrElse(rethrow)
     )()
 
     expect(recs.length).toEqual(1)
@@ -62,7 +64,7 @@ describe('Sets repository', () => {
     const recs = await pipe(
       some({ 'set.id': set_id }),
       repository.by_query,
-      getOrElse(fail)
+      getOrElse(rethrow)
     )()
 
     expect(recs.length).toEqual(1)

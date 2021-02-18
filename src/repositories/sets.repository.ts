@@ -1,5 +1,5 @@
 import { addMonths, startOfMonth } from 'date-fns'
-import { some } from 'fp-ts/lib/Option'
+import { some } from 'fp-ts/Option'
 
 import {
   Database,
@@ -7,7 +7,7 @@ import {
   get_one,
   load_sql,
   where
-} from '../db-utils'
+} from '../utilities/db-utils'
 import { SetRecord } from './types'
 
 export const create_repository = (db: Database) => {

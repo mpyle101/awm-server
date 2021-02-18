@@ -2,8 +2,9 @@ import { pipe } from 'fp-ts/lib/pipeable'
 import { getOrElseW, some } from 'fp-ts/lib/Option'
 import { getOrElse } from 'fp-ts/lib/TaskEither'
 
-import { connect, Database } from '../db-utils'
 import { create_cycles_repository } from '../repositories'
+import { connect, Database } from '../utilities/db-utils'
+import { rethrow, throw_error } from '../utilities/test-utils'
 
 const SL1 = {
   name: 'SL 1',
@@ -27,7 +28,7 @@ describe('Cycles repository', () => {
     const recs = await pipe(
       some({ name: 'SL 1' }),
       repository.by_query,
-      getOrElse(fail)
+      getOrElse(rethrow)
     )()
 
     expect(recs.length).toEqual(1)
@@ -41,12 +42,11 @@ describe('Cycles repository', () => {
       await pipe(
         cycle_id,
         repository.by_id,
-        getOrElse(fail),
+        getOrElse(rethrow),
       )(),
-      getOrElseW(() => fail(`${cycle_id} not found`))
+      getOrElseW(throw_error(`${cycle_id} not found`))
     )
 
-    expect(rec).toBeDefined()
     expect(rec).toMatchObject(SL1)
   })
 })

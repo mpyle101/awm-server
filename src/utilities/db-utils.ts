@@ -1,11 +1,11 @@
 import { join, resolve } from 'path'
 import { IDatabase, QueryFile } from 'pg-promise'
 
-import { pipe } from 'fp-ts/lib/pipeable'
-import { Option } from 'fp-ts/lib/Option'
-import * as E from 'fp-ts/lib/Either'
-import * as O from 'fp-ts/lib/Option'
-import * as TE from 'fp-ts/lib/TaskEither'
+import { pipe } from 'fp-ts/pipeable'
+import { Option } from 'fp-ts/Option'
+import * as E from 'fp-ts/Either'
+import * as O from 'fp-ts/Option'
+import * as TE from 'fp-ts/TaskEither'
 
 import pg_promise = require('pg-promise')
 const pgp = pg_promise({ capSQL: true })
@@ -27,14 +27,12 @@ type FilterStrings = {
 
 type FilterHandler = (filter: Record<string, string>) => string;
 
-
 const is_simple = value =>
   typeof value === 'number' ||
   typeof value === 'string' ||
   typeof value === 'boolean' ||
   value instanceof Date ||
   value === null
-
 
 export const connect = async (url: string) => {
   /** Make a test connection and release it **/
@@ -96,23 +94,17 @@ export const get_any = <T>(
 ): TE.TaskEither<Error, T[]> => 
   pipe(
     { limit, offset, filter },
-    get_filter(handler),
+    get_filters(handler),
     filter => TE.tryCatch(
       () => db.any<T>(sql, filter),
       E.toError
     )
   )
 
-const get_filter = (handler: FilterHandler) =>
-  ( params: FilterParams ): FilterStrings =>
+const get_filters = (handler: FilterHandler) =>
+  (params: FilterParams): FilterStrings =>
 ({
-  where: pipe(
-    params.filter,
-    O.fold(
-      () => '',
-      v  => handler(v)
-    )
-  ),
+  where:  pipe(params.filter, O.fold(() => '', handler)),
   limit:  pipe(params.limit,  O.fold(() => '', v => `LIMIT ${v}`)),
   offset: pipe(params.offset, O.fold(() => '', v => `OFFSET ${v}`)),
 })

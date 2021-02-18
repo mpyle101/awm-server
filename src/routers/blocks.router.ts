@@ -6,9 +6,9 @@ import * as E from 'fp-ts/Either'
 import * as O from 'fp-ts/Option'
 import * as T from 'fp-ts/Task'
 
-import { Database } from '../db-utils'
-import { foldMap, from_date, from_intstr } from '../fp-utils'
-import { make_error, get_params } from './utils'
+import { Database } from '../utilities/db-utils'
+import { foldMap, from_date, from_intstr } from '../utilities/fp-utils'
+import { make_error, parse_query } from '../utilities/web-utils'
 
 import { create_blocks_controller } from '../controllers'
 
@@ -19,7 +19,7 @@ export default (db: Database) => {
 
   router.get('/', (req: Request, res: Response, next: NF) =>
     (pipe(
-      get_params(req.query),
+      parse_query(req.query),
       E.fold(
         error => T.of(next(make_error(400, error))),
         flow(

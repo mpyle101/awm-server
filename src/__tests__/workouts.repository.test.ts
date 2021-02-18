@@ -1,9 +1,11 @@
-import { pipe } from 'fp-ts/lib/pipeable'
-import { getOrElseW, some } from 'fp-ts/lib/Option'
-import { getOrElse } from 'fp-ts/lib/TaskEither'
+import { pipe } from 'fp-ts/pipeable'
+import { getOrElseW, some } from 'fp-ts/Option'
 
-import { connect, Database } from '../db-utils'
+import * as TE from 'fp-ts/TaskEither'
+
 import { create_workouts_repository } from '../repositories'
+import { connect, Database } from '../utilities/db-utils'
+import { rethrow, throw_error } from '../utilities/test-utils'
 
 const WORKOUT_20210214 = {
   wrk_no: 1,
@@ -40,7 +42,7 @@ describe('Workouts repository', () => {
     const recs = await pipe(
       new Date(2021, 1, 14),
       repository.by_date,
-      getOrElse(fail)
+      TE.getOrElse(rethrow)
     )()
 
     expect(recs.length).toEqual(1)
@@ -54,9 +56,9 @@ describe('Workouts repository', () => {
       await pipe(
         workout_id,
         repository.by_id,
-        getOrElse(fail),
+        TE.getOrElse(rethrow),
       )(),
-      getOrElseW(() => fail(`${workout_id} not found`))
+      getOrElseW(throw_error(`${workout_id} not found`))
     )
 
     expect(rec).toBeDefined()
