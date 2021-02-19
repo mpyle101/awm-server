@@ -4,6 +4,7 @@ import { getOrElse } from 'fp-ts/TaskEither'
 
 import { create_cycles_repository } from '../repositories'
 import { connect, Database } from '../utilities/db-utils'
+import { foldMap } from '../utilities/fp-utils'
 import { rethrow, throw_error } from '../utilities/test-utils'
 
 const SL1 = {
@@ -13,16 +14,24 @@ const SL1 = {
 } as const
 
 describe('Cycles repository', () => {
-  let db: Database
+  let database: Database
   let cycle_id: number
   let repository: ReturnType<typeof create_cycles_repository>
 
-  beforeAll(async () => {
-    ({ db } = await connect('postgres://jester@localhost/awm'))
-    repository = create_cycles_repository(db)
-  })
+  beforeAll(() =>
+    pipe(
+      connect('postgres://jester@localhost/awm'),
+      foldMap(
+        rethrow,
+        ({ db }) => {
+          database   = db
+          repository = create_cycles_repository(db)
+        }
+      )
+    )()
+  )
 
-  afterAll(() => db.$pool.end())
+  afterAll(() => database.$pool.end())
 
   it('should get by query', async () => {
     const recs = await pipe(

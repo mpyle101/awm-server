@@ -4,6 +4,7 @@ import { getOrElse } from 'fp-ts/TaskEither'
 
 import { create_exercises_repository } from '../repositories'
 import { connect, Database } from '../utilities/db-utils'
+import { foldMap } from '../utilities/fp-utils'
 import { rethrow } from '../utilities/test-utils'
 
 const OHP = {
@@ -13,15 +14,23 @@ const OHP = {
 } as const
 
 describe('Exercises repository', () => {
-  let db: Database
+  let database: Database
   let repository: ReturnType<typeof create_exercises_repository>
 
-  beforeAll(async () => {
-    ({ db } = await connect('postgres://jester@localhost/awm'))
-    repository = create_exercises_repository(db)
-  })
+  beforeAll(() =>
+    pipe(
+      connect('postgres://jester@localhost/awm'),
+      foldMap(
+        rethrow,
+        ({ db }) => {
+          database   = db
+          repository = create_exercises_repository(db)
+        }
+      )
+    )()
+  )
 
-  afterAll(() => db.$pool.end())
+  afterAll(() => database.$pool.end())
 
   it('should get by key', async () => {
     const rec = pipe(

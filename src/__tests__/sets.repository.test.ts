@@ -4,21 +4,30 @@ import { getOrElse } from 'fp-ts/lib/TaskEither'
 
 import { create_sets_repository } from '../repositories'
 import { connect, Database } from '../utilities/db-utils'
+import { foldMap } from '../utilities/fp-utils'
 import { rethrow, throw_error } from '../utilities/test-utils'
 import { SETS_20210212 } from './test-data/sets.test-data'
 
 
 describe('Sets repository', () => {
-  let db: Database
+  let database: Database
   let set_id: number
   let repository: ReturnType<typeof create_sets_repository>
 
-  beforeAll(async () => {
-    ({ db } = await connect('postgres://jester@localhost/awm'))
-    repository = create_sets_repository(db)
-  })
+  beforeAll(() =>
+    pipe(
+      connect('postgres://jester@localhost/awm'),
+      foldMap(
+        rethrow,
+        ({ db }) => {
+          database   = db
+          repository = create_sets_repository(db)
+        }
+      )
+    )()
+  )
 
-  afterAll(() => db.$pool.end())
+  afterAll(() => database.$pool.end())
 
   it('should get by date', async () => {
     // February 12th, 2021 (month is an index...sigh)

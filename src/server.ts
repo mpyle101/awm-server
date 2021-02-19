@@ -46,10 +46,9 @@ process.on('SIGTERM', shutdown)
 const port = process.env.AWM_PORT || '9000'
 const url  = process.env.AWM_DB || 'postgres://jester@localhost/awm';
 
-(async () => {
-  await (pipe(
-    () => connect(url),
-    result => from_thunk(result),
+(() => {
+  pipe(
+    connect(url),
     foldMap(
       error => console.log(`Failed to connect to database: ${error}`),
       ({ db, version }) => {
@@ -87,5 +86,5 @@ const url  = process.env.AWM_DB || 'postgres://jester@localhost/awm';
         server.listen(port, () => console.log(`Server running on localhost:${port}`)) 
       }
     )
-  ))()
+  )()
 })()

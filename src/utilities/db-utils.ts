@@ -5,6 +5,7 @@ import { pipe } from 'fp-ts/pipeable'
 import { Option } from 'fp-ts/Option'
 import * as E from 'fp-ts/Either'
 import * as O from 'fp-ts/Option'
+import * as T from 'fp-ts/Task'
 import * as TE from 'fp-ts/TaskEither'
 
 import pg_promise = require('pg-promise')
@@ -34,14 +35,18 @@ const is_simple = value =>
   value instanceof Date ||
   value === null
 
-export const connect = async (url: string) => {
+export const connect = (url: string) => {
   /** Make a test connection and release it **/
-  const db  = pgp(url)
-  const dbc = await db.connect()
-  const version = dbc.client.serverVersion
-  dbc.done()
-
-  return { db, version }
+  const db = pgp(url)
+  return pipe(
+    TE.tryCatch(
+      () => db.connect(),
+      E.toError
+    ),
+    TE.map(dbc => ({ dbc, version: dbc.client.serverVersion })),
+    TE.map(({ dbc, version }) => { dbc.done(); return version }),
+    TE.map(version => ({ db, version }))
+  )
 }
 
 export const load_sql = (fname: string) => {

@@ -5,6 +5,7 @@ import * as TE from 'fp-ts/TaskEither'
 
 import { create_workouts_repository } from '../repositories'
 import { connect, Database } from '../utilities/db-utils'
+import { foldMap } from '../utilities/fp-utils'
 import { rethrow, throw_error } from '../utilities/test-utils'
 
 const WORKOUT_20210214 = {
@@ -26,16 +27,24 @@ const WORKOUT_20210214 = {
 } as const
 
 describe('Workouts repository', () => {
-  let db: Database
+  let database: Database
   let workout_id: number
   let repository: ReturnType<typeof create_workouts_repository>
 
-  beforeAll(async () => {
-    ({ db } = await connect('postgres://jester@localhost/awm'))
-    repository = create_workouts_repository(db)
-  })
+  beforeAll(() =>
+    pipe(
+      connect('postgres://jester@localhost/awm'),
+      foldMap(
+        rethrow,
+        ({ db }) => {
+          database   = db
+          repository = create_workouts_repository(db)
+        }
+      )
+    )()
+  )
 
-  afterAll(() => db.$pool.end())
+  afterAll(() => database.$pool.end())
 
   it('should get by date', async () => {
     // February 14th, 2021 (month is an index...sigh)
