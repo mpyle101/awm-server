@@ -78,15 +78,18 @@ export const where = (values: object, and=true) => {
   return 'WHERE ' + conditions.join(and ? ' AND ' : ' OR ')
 }
 
-export const get_one = <T>(db: Database, sql: string | QueryFile) =>
-  (where = ''): TE.TaskEither<Error, Option<T>> =>
-    pipe(
-      TE.tryCatch(
-        () => db.any<T>(sql, { limit: '', offset: '', where }),
-        E.toError
-      ),
-      TE.map(recs => recs.length ? O.some(recs[0]) : O.none)
-    )
+export const get_one = <T>(
+  db: Database,
+  sql: string | QueryFile
+) => (
+  where = ''
+) => pipe(
+  TE.tryCatch(
+    () => db.oneOrNone<T>(sql, { limit: '', offset: '', where }),
+    E.toError
+  ),
+  TE.map(O.fromNullable)
+)
 
 export const get_any = <T>(
   db: Database,
@@ -96,15 +99,14 @@ export const get_any = <T>(
   filter: Option<Record<string, any>> = O.none,
   limit:  Option<number> = O.none,
   offset: Option<number> = O.none
-): TE.TaskEither<Error, T[]> => 
-  pipe(
-    { limit, offset, filter },
-    get_filters(handler),
-    filter => TE.tryCatch(
-      () => db.any<T>(sql, filter),
-      E.toError
-    )
+) => pipe(
+  { limit, offset, filter },
+  get_filters(handler),
+  filter => TE.tryCatch(
+    () => db.any<T>(sql, filter),
+    E.toError
   )
+)
 
 const get_filters = (handler: FilterHandler) =>
   (params: FilterParams): FilterStrings =>
