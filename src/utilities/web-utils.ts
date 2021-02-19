@@ -1,5 +1,5 @@
 import { STATUS_CODES } from 'http'
-import { pipe } from 'fp-ts/pipeable'
+import { pipe } from 'fp-ts/function'
 import { sequenceS } from 'fp-ts/Apply'
 import { either } from 'fp-ts/Either'
 

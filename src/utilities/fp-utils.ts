@@ -1,5 +1,4 @@
-import { pipe } from 'fp-ts/pipeable'
-import { flow, Lazy } from 'fp-ts/function'
+import { flow, pipe, Lazy } from 'fp-ts/function'
 import { sequenceS } from 'fp-ts/Apply'
 import { Task } from 'fp-ts/Task'
 import { TaskEither } from 'fp-ts/TaskEither'

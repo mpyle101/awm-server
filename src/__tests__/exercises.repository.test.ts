@@ -1,6 +1,6 @@
-import { pipe } from 'fp-ts/lib/pipeable'
-import { getOrElseW, some } from 'fp-ts/lib/Option'
-import { getOrElse } from 'fp-ts/lib/TaskEither'
+import { pipe } from 'fp-ts/function'
+import { getOrElseW, some } from 'fp-ts/Option'
+import { getOrElse } from 'fp-ts/TaskEither'
 
 import { create_exercises_repository } from '../repositories'
 import { connect, Database } from '../utilities/db-utils'

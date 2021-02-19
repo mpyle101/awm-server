@@ -1,6 +1,5 @@
 import express, { Request, Response, NextFunction as NF } from 'express'
-import { flow } from 'fp-ts/function'
-import { pipe } from 'fp-ts/pipeable'
+import { flow, pipe } from 'fp-ts/function'
 
 import * as E from 'fp-ts/Either'
 import * as O from 'fp-ts/Option'
