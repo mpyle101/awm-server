@@ -94,7 +94,7 @@ export const get_one = <T>(
 export const get_any = <T>(
   db: Database,
   sql: string | QueryFile,
-  handler: FilterHandler = () => ''
+  handler: FilterHandler = (obj: object) => where(obj)
 ) => (
   filter: Option<Record<string, any>> = O.none,
   limit:  Option<number> = O.none,

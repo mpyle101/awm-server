@@ -13,7 +13,7 @@ import { WorkoutRecord } from './types'
 export const create_repository = (db: Database) => {
   const sql = load_sql('select_workouts.sql')
   const one = get_one<WorkoutRecord>(db, sql)
-  const any = get_any<WorkoutRecord>(db, sql, filter => where(filter))
+  const any = get_any<WorkoutRecord>(db, sql)
 
   const by_id    = (id: number) => one(where({ 'workout.id': id }))
   const by_ids   = (ids: number[]) => any(some({ 'workout.id': { 'IN': ids } }))

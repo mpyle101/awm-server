@@ -11,6 +11,8 @@ import { parse_query, make_error } from '../utilities/web-utils'
 
 import { create_exercises_controller } from '../controllers'
 
+const to_upper = (s:string) => s.toUpperCase()
+
 export default (db: Database) => {
   const router = express.Router({ strict: true })
   const controller = create_exercises_controller(db)
@@ -34,7 +36,8 @@ export default (db: Database) => {
 
   router.get('/:key', async (req: Request, res: Response, next: NF) =>
     (pipe(
-      req.params.key.toUpperCase(),
+      req.params.key,
+      to_upper,
       by_key,
       foldMap(
         error => next(make_error(500, error)),

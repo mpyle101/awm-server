@@ -11,10 +11,14 @@ import { Database } from '../utilities/db-utils'
 import { foldMap, from_date, from_intstr } from '../utilities/fp-utils'
 import { make_error, parse_query } from '../utilities/web-utils'
 
+const to_upper = (s: string) => s.toUpperCase()
+
 export default (db: Database) => {
   const router = express.Router({ strict: true })
   const controller = create_sets_controller(db)
-  const { by_id, by_date, by_month, by_query } = controller
+  const { by_key, by_reps, by_query } = controller
+  const topreps = (reps: number) => 
+    (key: string) => by_reps(key, reps)
 
   router.get('/', (req: Request, res: Response, next: NF) =>
     (pipe(
@@ -32,53 +36,26 @@ export default (db: Database) => {
     ))()
   )
 
-  router.get('/:id', (req: Request, res: Response, next: NF) =>
+  router.get('/:key', (req: Request, res: Response, next: NF) =>
     (pipe(
-      from_intstr(req.params.id),
-      E.fold(
-        error => T.of(next(make_error(400, error))),
-        flow(
-          by_id,
-          foldMap(
-            error => next(make_error(500, error)),
-            O.fold(
-              () => next(make_error(404)),
-              v  => res.json(v)
-            )
-          )
-        )
+      req.params.key,
+      to_upper,
+      by_key,
+      foldMap(
+        error  => next(make_error(500, error)),
+        result => res.json(result)
       )
     ))()
   )
 
-  router.get('/:year/:month', (req: Request, res: Response, next: NF) =>
+  router.get('/:key/top', (req: Request, res: Response, next: NF) =>
     (pipe(
-      from_date(req.params as any),
-      E.fold(
-        error => T.of(next(make_error(400, error))),
-        flow(
-          by_month,
-          foldMap(
-            error  => next(make_error(500, error)),
-            result => res.json(result)
-          )
-        )
-      )
-    ))()
-  )
-
-  router.get('/:year/:month/:day', (req: Request, res: Response, next: NF) =>
-    (pipe(
-      from_date(req.params as any),
-      E.fold(
-        error => T.of(next(make_error(400, error))),
-        flow(
-          by_date,
-          foldMap(
-            error  => next(make_error(500, error)),
-            result => res.json(result)
-          )
-        )
+      req.params.key,
+      to_upper,
+      topreps(5),
+      foldMap(
+        error => next(make_error(500, error)),
+        result => res.json(result)
       )
     ))()
   )

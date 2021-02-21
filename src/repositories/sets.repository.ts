@@ -13,22 +13,22 @@ import { SetRecord } from './types'
 export const create_repository = (db: Database) => {
   const sql = load_sql('select_sets.sql')
   const one = get_one<SetRecord>(db, sql)
-  const any = get_any<SetRecord>(db, sql, filter => where(filter))
+  const any = get_any<SetRecord>(db, sql)
 
-  const by_id    = (id: number) => one(where({ 'set.id': id }))
-  const by_ids   = (ids: number[]) => any(some({ 'set.id': { 'IN':ids } })) 
-  const by_date  = (date: Date) => any(some({ 'workout_date': date }))
-  const by_month = (date: Date) => {
-    const start = startOfMonth(date)
-    const end   = addMonths(start, 1)
-    return any(some({ 'workout_date': { '>=': start, '<': end } }))
-  }
+  const by_id  = (id: number)  => one(where({ 'set.id': id }))
+  const by_key = (key: string) => any(some({ 'set.exercise': key }))
+
+  const topsets = load_sql('select_topsets.sql')
+  const topten  = get_any<SetRecord>(db, topsets)
+  const by_reps = (key: string, limit: number) => topten(
+    some({ 'set.exercise': key }),
+    some(limit)
+  )
 
   return {
     by_id,
-    by_ids,
-    by_date,
-    by_month,
-    by_query: any
+    by_key,
+    by_query: any,
+    by_reps
   }
 }

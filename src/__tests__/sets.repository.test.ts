@@ -1,17 +1,15 @@
-import { pipe } from 'fp-ts/lib/pipeable'
-import { getOrElseW, some } from 'fp-ts/lib/Option'
-import { getOrElse } from 'fp-ts/lib/TaskEither'
+import { pipe } from 'fp-ts/pipeable'
+import { getOrElseW, some } from 'fp-ts/Option'
+import { getOrElse } from 'fp-ts/TaskEither'
 
-import { create_sets_repository } from '../repositories'
+import { create_sets_repository, SetRecord } from '../repositories'
 import { connect, Database } from '../utilities/db-utils'
 import { foldMap } from '../utilities/fp-utils'
-import { rethrow, throw_error } from '../utilities/test-utils'
-import { SETS_20210212 } from './test-data/sets.test-data'
-
+import { rethrow } from '../utilities/test-utils'
 
 describe('Sets repository', () => {
   let database: Database
-  let set_id: number
+  let set_data: SetRecord
   let repository: ReturnType<typeof create_sets_repository>
 
   beforeAll(() =>
@@ -29,54 +27,27 @@ describe('Sets repository', () => {
 
   afterAll(() => database.$pool.end())
 
-  it('should get by date', async () => {
-    // February 12th, 2021 (month is an index...sigh)
+  it('should get by exercise', async () => {
     const recs = await pipe(
-      new Date(2021, 1, 12),
-      repository.by_date,
-      getOrElse(rethrow)
+      'OHP',
+      repository.by_key,
+      getOrElse(rethrow),
     )()
 
-    expect(recs.length).toEqual(19)
-    expect(recs[0]).toMatchObject(SETS_20210212[0])
-    expect(recs[1]).toMatchObject(SETS_20210212[1])
+    expect(recs.length).toBeTruthy()
+    expect(recs[0].set_exercise).toEqual('OHP')
 
-    set_id = recs[0].set_id
-  })
-
-  it('should get by id', async () => {
-    const rec = pipe(
-      await pipe(
-        set_id,
-        repository.by_id,
-        getOrElse(rethrow),
-      )(),
-      getOrElseW(throw_error(`${set_id} not found`))
-    )
-
-    expect(rec).toBeDefined()
-    expect(rec).toMatchObject(SETS_20210212[0])
-  })
-
-  it('should get by ids', async () => {
-    const recs = await pipe(
-      [set_id],
-      repository.by_ids,
-      getOrElse(rethrow)
-    )()
-
-    expect(recs.length).toEqual(1)
-    expect(recs[0]).toMatchObject(SETS_20210212[0])
+    set_data = recs[0]
   })
 
   it('should get by query', async () => {
     const recs = await pipe(
-      some({ 'set.id': set_id }),
+      some({ 'set.id': set_data.set_id }),
       repository.by_query,
       getOrElse(rethrow)
     )()
 
     expect(recs.length).toEqual(1)
-    expect(recs[0]).toMatchObject(SETS_20210212[0])
+    expect(recs[0]).toMatchObject(set_data)
   })
 })

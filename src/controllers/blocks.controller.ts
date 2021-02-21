@@ -3,12 +3,13 @@ import { QueryParams, create_blocks_repository } from '../repositories'
 
 export const create_controller = (db: Database) => {
   const repository = create_blocks_repository(db)
+  const { by_id, by_date, by_month, by_query } = repository
 
   return {
-    by_id:    (set_id: number) => repository.by_id(set_id),
-    by_date:  (date: Date) => repository.by_date(date),
-    by_month: (date: Date) => repository.by_month(date),
+    by_id,
+    by_date,
+    by_month,
     by_query: (params: QueryParams) =>
-      repository.by_query(params.filter, params.limit, params.offset)
+      by_query(params.filter, params.limit, params.offset)
   }
 }

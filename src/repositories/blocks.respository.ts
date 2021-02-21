@@ -13,7 +13,7 @@ import { BlockRecord } from './types'
 export const create_repository = (db: Database) => {
   const sql = load_sql('select_blocks.sql')
   const one = get_one<BlockRecord>(db, sql)
-  const any = get_any<BlockRecord>(db, sql, filter => where(filter))
+  const any = get_any<BlockRecord>(db, sql)
 
   const by_id    = (id: number) => one(where({ 'block.id': id }))
   const by_ids   = (ids: number[]) => any(some({ 'block.id': { 'IN': ids } }))
