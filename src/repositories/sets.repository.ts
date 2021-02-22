@@ -25,13 +25,16 @@ export const create_repository = (db: Database) => {
   const by_reps = (key: string, reps: number) => 
     pipe(
       [...Array(reps).keys()].map(k =>
-        top_set(some({ 'set.exercise': key, 'set.reps': { '>=': k + 1 } }))
+        top_set(some({
+          'set.exercise': key,
+          'set.reps': { '>=': k + 1 }
+        }))
       ),
       sequenceArray,
       map(recs => recs.reduce((reps, set, idx) => {
         reps[idx + 1] = set[0]
         return reps
-      }, {}))
+      }, {} as Record<number, SetRecord>))
     )
 
   return {
