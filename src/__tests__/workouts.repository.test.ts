@@ -5,8 +5,7 @@ import * as TE from 'fp-ts/TaskEither'
 
 import { create_workouts_repository } from '../repositories'
 import { connect, Database } from '../utilities/db-utils'
-import { foldMap } from '../utilities/fp-utils'
-import { rethrow, throw_error } from '../utilities/test-utils'
+import { foldMap, rethrow, throw_error } from '../utilities/fp-utils'
 
 const WORKOUT_20210214 = {
   wrk_no: 1,

@@ -4,8 +4,7 @@ import { getOrElse } from 'fp-ts/TaskEither'
 
 import { create_cycles_repository } from '../repositories'
 import { connect, Database } from '../utilities/db-utils'
-import { foldMap } from '../utilities/fp-utils'
-import { rethrow, throw_error } from '../utilities/test-utils'
+import { foldMap, rethrow, throw_error } from '../utilities/fp-utils'
 
 const SL1 = {
   name: 'SL 1',

@@ -4,8 +4,7 @@ import { getOrElse } from 'fp-ts/TaskEither'
 
 import { create_exercises_repository } from '../repositories'
 import { connect, Database } from '../utilities/db-utils'
-import { foldMap } from '../utilities/fp-utils'
-import { rethrow } from '../utilities/test-utils'
+import { foldMap, rethrow } from '../utilities/fp-utils'
 
 const OHP = {
   key: 'OHP',

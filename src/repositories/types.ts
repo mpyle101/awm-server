@@ -46,6 +46,8 @@ export type SetRecord = {
   set_notes: string
   set_exercise: string
   set_weight: number
+  set_unit: string
+  set_reps: number
   set_duration: object
   set_distance: string
   grp_style: string
@@ -70,6 +72,8 @@ export type WorkoutRecord = {
   set_notes: string
   set_exercise: string
   set_weight: number
+  set_unit: string
+  set_reps: number
   set_duration: object
   set_distance: string
   grp_style: string

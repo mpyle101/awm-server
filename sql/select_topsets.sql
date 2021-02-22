@@ -1,5 +1,5 @@
 SELECT
-  DISTINCT ON (set.reps, set.weight)
+  workout.workout_date AS date,
   set.id as set_id,
   set.setno AS set_no,
   set.set_type AS set_type,
@@ -11,25 +11,16 @@ SELECT
   set.duration AS set_duration,
   set.distance AS set_distance
 FROM awm.set
-JOIN (
-  SELECT
-    exercise, reps, MAX(weight) as weight
-  FROM
-    awm.set
-  ${where:raw}
-  GROUP BY
-    exercise, reps
-  HAVING
-    reps > 0
-  ORDER BY
-    reps
-  ${limit:raw}
-) topsets
-  ON set.exercise = topsets.exercise 
-  AND set.reps = topsets.reps
-  AND set.weight = topsets.weight
+INNER JOIN
+  awm.set_group ON awm.set.group_id = awm.set_group.id
+INNER JOIN
+  awm.block ON awm.set_group.block_id = awm.block.id
+INNER JOIN
+  awm.workout ON awm.block.workout_id = awm.workout.id
+${where:raw}
 ORDER BY
-  set.reps,
-  set.weight,
-  set.id DESC
+  set.weight DESC,
+  workout.workout_date DESC,
+  set.id
+LIMIT 1
 

@@ -17,7 +17,7 @@ export default (db: Database) => {
   const router = express.Router({ strict: true })
   const controller = create_sets_controller(db)
   const { by_key, by_reps, by_query } = controller
-  const topreps = (reps: number) => 
+  const top_reps = (reps: number) => 
     (key: string) => by_reps(key, reps)
 
   router.get('/', (req: Request, res: Response, next: NF) =>
@@ -52,7 +52,7 @@ export default (db: Database) => {
     (pipe(
       req.params.key,
       to_upper,
-      topreps(5),
+      top_reps(5),
       foldMap(
         error => next(make_error(500, error)),
         result => res.json(result)

@@ -3,7 +3,8 @@ import { Option, fold, none } from 'fp-ts/Option'
 
 import * as E from 'fp-ts/Either'
 
-import { rethrow, throw_error, expect_error } from '../utilities/test-utils'
+import { rethrow, throw_error } from '../utilities/fp-utils'
+import { expect_error } from '../utilities/test-utils'
 import { parse_query } from '../utilities/web-utils'
 
 type Params = {

@@ -12,6 +12,8 @@ export type AsyncArray<A> = Lazy<Promise<A[]>>
 export type AsyncResult<A> = Lazy<Promise<A>>
 
 export const foldMap = flow(E.fold, T.map)
+export const rethrow = (err: Error) => { throw (err) }
+export const throw_error = (msg: string) => () => { throw new Error(msg) }
 
 export const from_thunk = <A>(f: AsyncResult<A>) => TE.tryCatch(f, E.toError)
 

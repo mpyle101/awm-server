@@ -1,5 +1,7 @@
 import { addMonths, startOfMonth } from 'date-fns'
+import { pipe } from 'fp-ts/function'
 import { some } from 'fp-ts/Option'
+import { map, sequenceArray } from 'fp-ts/TaskEither'
 
 import {
   Database,
@@ -18,12 +20,19 @@ export const create_repository = (db: Database) => {
   const by_id  = (id: number)  => one(where({ 'set.id': id }))
   const by_key = (key: string) => any(some({ 'set.exercise': key }))
 
-  const topsets = load_sql('select_topsets.sql')
-  const topten  = get_any<SetRecord>(db, topsets)
-  const by_reps = (key: string, limit: number) => topten(
-    some({ 'set.exercise': key }),
-    some(limit)
-  )
+  const top_sql = load_sql('select_topsets.sql')
+  const top_set = get_any<SetRecord>(db, top_sql)
+  const by_reps = (key: string, reps: number) => 
+    pipe(
+      [...Array(reps).keys()].map(k =>
+        top_set(some({ 'set.exercise': key, 'set.reps': { '>=': k + 1 } }))
+      ),
+      sequenceArray,
+      map(recs => recs.reduce((reps, set, idx) => {
+        reps[idx + 1] = set[0]
+        return reps
+      }, {}))
+    )
 
   return {
     by_id,
