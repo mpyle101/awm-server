@@ -54,7 +54,7 @@ export default (db: Database) => {
       to_upper,
       top_reps(5),
       foldMap(
-        error => next(make_error(500, error)),
+        error  => next(make_error(500, error)),
         result => res.json(result)
       )
     ))()

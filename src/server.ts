@@ -15,6 +15,7 @@ import {
   create_cycles_router,
   create_exercises_router,
   create_sets_router,
+  create_users_router,
   create_workouts_router
 } from './routers'
 
@@ -67,6 +68,7 @@ const url  = process.env.AWM_DB || 'postgres://jester@localhost/awm';
         app.use('/api/cycles',    create_cycles_router(db))
         app.use('/api/exercises', create_exercises_router(db))
         app.use('/api/sets',      create_sets_router(db))
+        app.use('/api/users',     create_users_router(db))
         app.use('/api/workouts',  create_workouts_router(db))
 
         // Catch all other routes and return the index file

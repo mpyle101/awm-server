@@ -14,10 +14,13 @@ const pgp = pg_promise({ capSQL: true })
 export type Database = IDatabase<any>
 export const format = pgp.as.format
 
+type Filter = Record<string, any>
+type FilterHandler = (filter: Filter) => string;
+
 type FilterParams = {
   limit:  Option<number>
   offset: Option<number>
-  filter: Option<Record<string, any>>
+  filter: Option<Filter>
 }
 
 type FilterStrings = {
@@ -25,8 +28,6 @@ type FilterStrings = {
   limit:  string
   offset: string
 }
-
-type FilterHandler = (filter: Record<string, string>) => string;
 
 const is_simple = value =>
   typeof value === 'number' ||
@@ -96,7 +97,7 @@ export const get_any = <T>(
   sql: string | QueryFile,
   handler: FilterHandler = (obj: object) => where(obj)
 ) => (
-  filter: Option<Record<string, any>> = O.none,
+  filter: Option<Filter> = O.none,
   limit:  Option<number> = O.none,
   offset: Option<number> = O.none
 ) => pipe(
@@ -106,6 +107,19 @@ export const get_any = <T>(
     () => db.any<T>(sql, filter),
     E.toError
   )
+)
+
+export const get_one_with = <T>(
+  db: Database,
+  sql: string | QueryFile
+) => (
+  values = {}
+) => pipe(
+  TE.tryCatch(
+    () => db.oneOrNone<T>(sql, values),
+    E.toError
+  ),
+  TE.map(O.fromNullable)
 )
 
 const get_filters = (handler: FilterHandler) =>

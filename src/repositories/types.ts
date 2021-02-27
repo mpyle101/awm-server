@@ -59,6 +59,14 @@ export type SetRecord = {
   blk_distance: string
 }
 
+export type UserRecord = {
+  id: number
+  email: string
+  username: string
+  first_name: string
+  last_name: string
+}
+
 export type WorkoutRecord = {
   date: string
   wrk_id: number

@@ -7,9 +7,7 @@ import { QueryParams, SetRecord, create_sets_repository } from '../repositories'
 
 export const create_controller = (db: Database) => {
   const repository = create_sets_repository(db)
-  const { by_id, by_key, by_query } = repository
-
-  const by_reps = (key: string, reps: number) =>repository.by_reps(key, reps)
+  const { by_id, by_key, by_reps, by_query } = repository
 
   return {
     by_id,
