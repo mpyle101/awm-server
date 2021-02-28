@@ -4,8 +4,8 @@ import path from 'path'
 import cors from 'cors'
 import body_parser from 'body-parser'
 import express, { Request, Response, NextFunction } from 'express'
-import { pipe } from 'fp-ts/lib/pipeable'
-import { Lazy } from 'fp-ts/lib/function'
+import helmet from 'helmet'
+import { Lazy, pipe } from 'fp-ts/function'
 
 import { Database, connect } from './utilities/db-utils'
 import { foldMap, from_thunk } from './utilities/fp-utils'
@@ -25,6 +25,7 @@ const server = http.createServer(app)
 
 // Parsers for POST data
 app.use(cors())
+app.use(helmet())
 app.use(body_parser.json())
 app.use(body_parser.urlencoded({extended: false}))
 

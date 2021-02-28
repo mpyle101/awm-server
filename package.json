@@ -13,19 +13,21 @@
   ],
   "main": "build/server.js",
   "scripts": {
-    "build"    : "tsc",
-    "clean"    : "rm -r .tsbuildinfo build/*",
-    "lint"     : "tslint",
+    "build": "tsc",
+    "clean": "rm -r .tsbuildinfo build/*",
+    "lint": "tslint",
     "postbuild": "cp -r ./sql ./build",
-    "rebuild"  : "npm run clean && npm run build",
-    "start"    : "npm run build && node build/server.js",
-    "test"     : "jest"
+    "rebuild": "npm run clean && npm run build",
+    "start": "npm run build && node build/server.js",
+    "test": "jest"
   },
   "dependencies": {
     "cors": "2.8.5",
     "date-fns": "2.16.1",
     "express": "4.17.1",
+    "express-session": "1.17.1",
     "fp-ts": "2.9.3",
+    "helmet": "4.4.1",
     "pg-promise": "10.9.2"
   },
   "devDependencies": {
